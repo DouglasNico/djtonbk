@@ -201,9 +201,6 @@ body {
 
 /* Scroll Margin para compensar navbar fixa */
 section[id], header[id] {
-    scroll-margin-top: 70px;
-}
-#servicos, #contato, #agenda {
     scroll-margin-top: 0;
 }
 
@@ -454,6 +451,11 @@ body::before {
     background: linear-gradient(135deg, #00e6e0, #00b3ae) !important;
 }
 
+.btn-primary:active {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 15px rgba(0, 206, 201, 0.3) !important;
+}
+
 .btn-outline {
     background: transparent !important;
     border-color: rgba(255,255,255,0.3) !important;
@@ -465,6 +467,11 @@ body::before {
     border-color: #fff !important;
     color: #0a0a0a !important;
     box-shadow: 0 0 30px rgba(255,255,255,0.2) !important;
+}
+
+.btn-outline:active {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 0 15px rgba(255,255,255,0.1) !important;
 }
 
 /* Stats */
@@ -833,6 +840,102 @@ body::before {
     font-size: 13px;
 }
 
+.skeleton {
+    background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 8px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+    background: #141414;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+.skeleton-card-img {
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-card-body {
+    padding: 18px 20px 24px;
+}
+
+.skeleton-card-badge {
+    width: 80px;
+    height: 18px;
+    margin-bottom: 10px;
+}
+
+.skeleton-card-title {
+    width: 70%;
+    height: 20px;
+    margin-bottom: 8px;
+}
+
+.skeleton-card-price {
+    width: 50%;
+    height: 16px;
+    margin-bottom: 14px;
+}
+
+.skeleton-card-feature {
+    width: 90%;
+    height: 12px;
+    margin-bottom: 8px;
+}
+
+.skeleton-card-feature:last-child {
+    width: 60%;
+}
+
+.skeleton-agenda {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: #141414;
+    padding: 20px 30px;
+    border-radius: 12px;
+    border-left: 4px solid rgba(255,255,255,0.05);
+}
+
+.skeleton-agenda-cal {
+    width: 70px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+.skeleton-agenda-info {
+    flex: 1;
+}
+
+.skeleton-agenda-badge {
+    width: 60px;
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.skeleton-agenda-title {
+    width: 60%;
+    height: 18px;
+    margin-bottom: 6px;
+}
+
+.skeleton-agenda-local {
+    width: 40%;
+    height: 14px;
+}
+
 .agenda-item {
     display: flex;
     align-items: center;
@@ -861,6 +964,10 @@ body::before {
     transform: translateX(8px);
     background: linear-gradient(to right, #252525, #131313);
     box-shadow: 0 4px 25px rgba(0, 206, 201, 0.08);
+}
+
+.agenda-item:active {
+    transform: translateX(4px) scale(0.99);
 }
 
 /* Mini Calendário */
@@ -937,13 +1044,19 @@ body::before {
 .agenda-contagem {
     font-size: 11px;
     font-weight: 700;
-    color: #ffd700;
+    color: #00cec9;
     text-transform: uppercase;
     letter-spacing: 1px;
     white-space: nowrap;
-    background: rgba(255, 215, 0, 0.1);
+    background: rgba(0, 206, 201, 0.1);
     padding: 4px 12px;
     border-radius: 20px;
+}
+
+.agenda-contagem.urgente {
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
 }
 
 .agenda-item .btn-detalhes {
@@ -1436,6 +1549,56 @@ body::before {
     padding: 0;
 }
 
+.lgpd-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #111;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 500;
+    flex-wrap: wrap;
+}
+
+.lgpd-banner p {
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+}
+
+.lgpd-banner a {
+    color: #00cec9;
+    text-decoration: none;
+}
+
+.lgpd-btn {
+    background: #00cec9;
+    color: #0a0a0a;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.lgpd-btn:hover {
+    background: #00e6e0;
+}
+
+@media (max-width: 480px) {
+    .lgpd-banner { flex-direction: column; text-align: center; padding: 12px 16px; }
+    .lgpd-banner p { font-size: 11px; }
+}
+
 .zoom-fechar:hover {
     background: #00cec9;
     color: #111;
@@ -1443,17 +1606,11 @@ body::before {
     transform: scale(1.1);
 }
 
-.btn-comprar:hover {
-    background: linear-gradient(135deg, #00e6e0, #00b3ae);
-    color: #0a0a0a;
-    box-shadow: 0 8px 30px rgba(0, 206, 201, 0.4);
-    transform: translateY(-2px);
-}
 
 
 /* =========================================
-   13. FOOTER (RODAPÉ)
-   ========================================= */
+    13. FOOTER (RODAPÉ)
+    ========================================= */
 .footer {
     background-color: #050505;
     padding: 60px 20px 30px;
@@ -1844,11 +2001,6 @@ body::before {
     margin-top: 8px;
 }
 
-/* ========================================= */
-/* TELA DE ABERTURA ANIMADA (PRELOADER)      */
-/* ========================================= */
-
-
 
 
 
@@ -1881,7 +2033,7 @@ body::before {
     height: 20px;
     cursor: pointer;
     position: relative;
-    z-index: 100001;
+    z-index: 1001;
 }
 
 .menu-toggle span {
@@ -1949,7 +2101,7 @@ body::before {
         padding: 60px 30px;
         transform: translateX(100%);
         transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
-        z-index: 100000;
+        z-index: 1000;
         border-left: 1px solid rgba(0, 206, 201, 0.1);
     }
 

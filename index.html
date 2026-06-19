@@ -97,7 +97,9 @@
         </div>
 
         <div class="cards-grid" id="lista-de-servicos">
-            <p style="color: #888; text-align: center; width: 100%;">Carregando pacotes...</p>
+            <div class="skeleton-card"><div class="skeleton-card-img"></div><div class="skeleton-card-body"><div class="skeleton skeleton-card-badge"></div><div class="skeleton skeleton-card-title"></div><div class="skeleton skeleton-card-price"></div><div class="skeleton skeleton-card-feature"></div><div class="skeleton skeleton-card-feature"></div></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-img"></div><div class="skeleton-card-body"><div class="skeleton skeleton-card-badge"></div><div class="skeleton skeleton-card-title"></div><div class="skeleton skeleton-card-price"></div><div class="skeleton skeleton-card-feature"></div><div class="skeleton skeleton-card-feature"></div></div></div>
+            <div class="skeleton-card"><div class="skeleton-card-img"></div><div class="skeleton-card-body"><div class="skeleton skeleton-card-badge"></div><div class="skeleton skeleton-card-title"></div><div class="skeleton skeleton-card-price"></div><div class="skeleton skeleton-card-feature"></div><div class="skeleton skeleton-card-feature"></div></div></div>
         </div>
     </section>
 
@@ -105,7 +107,7 @@
     <section id="sobre" class="sobre-section">
         <div class="sobre-container">
             <div class="sobre-img reveal">
-                <img src="./img/dj.png" alt="Foto do DJ em ação">
+                <img src="./img/dj.png" alt="Foto do DJ em ação" loading="lazy">
             </div>
             <div class="sobre-texto reveal">
                 <h2>Sobre Mim</h2>
@@ -123,7 +125,9 @@
         </div>
 
         <div class="cards-grid agenda-lista reveal" id="lista-de-eventos">
-            <p style="color: #888; text-align: center; width: 100%;">Carregando agenda...</p>
+            <div class="skeleton-agenda"><div class="skeleton skeleton-agenda-cal"></div><div class="skeleton-agenda-info"><div class="skeleton skeleton-agenda-badge"></div><div class="skeleton skeleton-agenda-title"></div><div class="skeleton skeleton-agenda-local"></div></div></div>
+            <div class="skeleton-agenda"><div class="skeleton skeleton-agenda-cal"></div><div class="skeleton-agenda-info"><div class="skeleton skeleton-agenda-badge"></div><div class="skeleton skeleton-agenda-title"></div><div class="skeleton skeleton-agenda-local"></div></div></div>
+            <div class="skeleton-agenda"><div class="skeleton skeleton-agenda-cal"></div><div class="skeleton skeleton-agenda-info"><div class="skeleton skeleton-agenda-badge"></div><div class="skeleton skeleton-agenda-title"></div><div class="skeleton skeleton-agenda-local"></div></div></div>
         </div>
     </section>
 
@@ -270,7 +274,7 @@
             <p>Materiais para divulgação</p>
         </div>
         <div class="modal-presskit-corpo">
-            <a href="javascript:void(0)" class="modal-presskit-btn" target="_blank" rel="noopener">
+            <a href="./logo-presskit.zip" class="modal-presskit-btn" download>
                 <span class="presskit-btn-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
                 </span>
@@ -279,7 +283,7 @@
                     <small>PNG · Fundo transparente</small>
                 </span>
             </a>
-            <a href="javascript:void(0)" class="modal-presskit-btn" target="_blank" rel="noopener">
+            <a href="./fotos-presskit.zip" class="modal-presskit-btn" download>
                 <span class="presskit-btn-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 </span>
@@ -288,13 +292,13 @@
                     <small>PNG · Fundo transparente</small>
                 </span>
             </a>
-            <a href="javascript:void(0)" class="modal-presskit-btn" target="_blank" rel="noopener">
+            <a href="./release-rider.html" class="modal-presskit-btn" target="_blank" rel="noopener">
                 <span class="presskit-btn-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 </span>
                 <span class="presskit-btn-text">
                     <strong>Release / Rider Técnico</strong>
-                    <small>PDF · Informações completas</small>
+                    <small>HTML · Informações completas</small>
                 </span>
             </a>
         </div>
@@ -520,6 +524,7 @@
                     const mes = evento.dataReal ? new Date(evento.dataReal + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
                     
                     let diasRestantes = '';
+                    let urgenteClass = '';
                     if (evento.dataReal) {
                         const hoje = new Date();
                         hoje.setHours(0, 0, 0, 0);
@@ -527,6 +532,7 @@
                         if (diff === 0) diasRestantes = 'HOJE';
                         else if (diff === 1) diasRestantes = 'AMANHÃ';
                         else if (diff > 0) diasRestantes = `FALTAM ${diff} DIAS`;
+                        if (diff >= 0 && diff <= 7) urgenteClass = 'urgente';
                     }
 
                     const localExibicao = evento.cidade ? `${evento.cidade}, ${evento.estado}` : (evento.local || '');
@@ -549,7 +555,7 @@
                         </div>
                         
                         <div class="agenda-extra">
-                            ${diasRestantes ? `<span class="agenda-contagem">${diasRestantes}</span>` : ''}
+                            ${diasRestantes ? `<span class="agenda-contagem ${urgenteClass}">${diasRestantes}</span>` : ''}
                             <a href="#" class="btn btn-detalhes" 
                                data-titulo="${evento.titulo}"
                                data-data="${evento.data}"
@@ -713,16 +719,17 @@
             }
         });
 
-        // Fecha modal e zoom com ESC
+        // Fecha todos os modais com ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                if (zoomOverlay.classList.contains('ativo')) {
-                    zoomOverlay.classList.remove('ativo');
-                    document.body.style.overflow = '';
-                }
-                if (modal.classList.contains('ativo')) {
-                    modal.classList.remove('ativo');
-                }
+                const modais = ['modal-evento', 'modal-servico', 'modal-presskit', 'zoom-overlay'];
+                modais.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el.classList.contains('ativo') || el.classList.contains('aberto')) {
+                        el.classList.remove('ativo', 'aberto');
+                    }
+                });
+                document.body.style.overflow = '';
             }
         });
 
@@ -730,5 +737,21 @@
     </script>
 
     <script src="js/script.js"></script>
+
+    <!-- LGPD Cookie Consent -->
+    <div id="lgpd-banner" class="lgpd-banner">
+        <p>Utilizamos cookies e tecnologias similares para melhorar sua experiência. Ao continuar, você concorda com nossa <a href="javascript:void(0)">política de privacidade</a>.</p>
+        <button id="lgpd-aceitar" class="lgpd-btn">ACEITAR</button>
+    </div>
+
+    <script>
+        if (localStorage.getItem('lgpd-aceito') === 'true') {
+            document.getElementById('lgpd-banner').style.display = 'none';
+        }
+        document.getElementById('lgpd-aceitar').addEventListener('click', function() {
+            localStorage.setItem('lgpd-aceito', 'true');
+            document.getElementById('lgpd-banner').style.display = 'none';
+        });
+    </script>
 </body>
 </html>
