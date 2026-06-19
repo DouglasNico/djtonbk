@@ -283,6 +283,7 @@
         <div class="admin-tabs">
             <button class="tab-btn ativo" data-tab="agenda">📅 Agenda</button>
             <button class="tab-btn" data-tab="servicos">🎵 Serviços</button>
+            <button class="tab-btn" data-tab="galeria">📸 Galeria</button>
         </div>
 
         <!-- ========================================== -->
@@ -353,11 +354,34 @@ O pacote ideal para eventos intimistas.
                 <p style="color: #888;">Carregando serviços...</p>
             </div>
         </div>
+
+        <div id="tab-galeria" class="tab-content">
+            <div class="form-box">
+                <h3 id="titulo-form-galeria" style="margin-bottom: 20px;">Adicionar Novo Evento na Galeria</h3>
+                <form id="form-galeria">
+                    <input type="text" id="galeria-titulo" placeholder="Título do Evento" required>
+                    <input type="date" id="galeria-data" required>
+                    <input type="text" id="galeria-local" placeholder="Local do Evento">
+                    <div class="upload-box">
+                        <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">Fotos do Evento (selecione várias)</label>
+                        <input type="file" id="galeria-fotos" accept="image/*" multiple style="padding: 10px; background: #222;">
+                        <div id="galeria-preview" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
+                    </div>
+                    <button type="submit" class="btn-salvar" id="btn-submit-galeria">SALVAR GALERIA NO SITE</button>
+                    <button type="button" class="btn-cancelar" id="btn-cancelar-galeria">CANCELAR EDIÇÃO</button>
+                </form>
+            </div>
+
+            <h3>Eventos na Galeria</h3>
+            <div id="lista-galeria-admin">
+                <p style="color: #888;">Carregando eventos...</p>
+            </div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         // Importamos as ferramentas de Autenticação aqui
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
@@ -426,6 +450,7 @@ O pacote ideal para eventos intimistas.
                 secaoPainel.style.display = 'block';
                 carregarEventosAdmin();
                 carregarServicosAdmin();
+                carregarGaleriaAdmin();
             } else {
                 secaoLogin.style.display = 'flex';
                 secaoPainel.style.display = 'none';
@@ -930,6 +955,283 @@ O pacote ideal para eventos intimistas.
             }
         }
 
+        // ==========================================
+        // CRUD - GALERIA
+        // ==========================================
+
+        const formGaleria = document.getElementById('form-galeria');
+        const btnSubmitGaleria = document.getElementById('btn-submit-galeria');
+        const btnCancelarGaleria = document.getElementById('btn-cancelar-galeria');
+        const tituloFormGaleria = document.getElementById('titulo-form-galeria');
+        const listaGaleriaAdmin = document.getElementById('lista-galeria-admin');
+        const previewGaleria = document.getElementById('galeria-preview');
+
+        let idGaleriaSendoEditado = null;
+
+        // PREVIEW DAS FOTOS SELECIONADAS
+        document.getElementById('galeria-fotos').addEventListener('change', function() {
+            previewGaleria.innerHTML = '';
+            for (const file of this.files) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.style.width = '100px';
+                img.style.height = '100px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '8px';
+                previewGaleria.appendChild(img);
+            }
+        });
+
+        // SALVAR / EDITAR GALERIA
+        formGaleria.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            btnSubmitGaleria.innerText = "SALVANDO... AGUARDE";
+            btnSubmitGaleria.disabled = true;
+
+            try {
+                const campoFotos = document.getElementById('galeria-fotos');
+                let fotosArray = [];
+
+                // Se já estamos editando, mantém as fotos existentes
+                if (idGaleriaSendoEditado && window.galeriaFotosExistentes) {
+                    fotosArray = [...window.galeriaFotosExistentes];
+                }
+
+                // Upload das novas fotos
+                if (campoFotos.files.length > 0) {
+                    btnSubmitGaleria.innerText = "ENVIANDO FOTOS...";
+                    const cloudName = "dycwp4ds9";
+                    const uploadPreset = "djtonbk";
+
+                    for (const arquivo of campoFotos.files) {
+                        const formData = new FormData();
+                        formData.append('file', arquivo);
+                        formData.append('upload_preset', uploadPreset);
+
+                        const respostaCloudinary = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const dadosCloudinary = await respostaCloudinary.json();
+
+                        if (dadosCloudinary.secure_url) {
+                            fotosArray.push({
+                                url: dadosCloudinary.secure_url,
+                                publicId: dadosCloudinary.public_id
+                            });
+                        }
+                    }
+                }
+
+                if (idGaleriaSendoEditado && campoFotos.files.length === 0 && (!window.galeriaFotosExistentes || window.galeriaFotosExistentes.length === 0)) {
+                    mostrarToast('Selecione pelo menos uma foto.', 'erro');
+                    btnSubmitGaleria.innerText = "SALVAR GALERIA NO SITE";
+                    btnSubmitGaleria.disabled = false;
+                    return;
+                }
+
+                if (fotosArray.length === 0) {
+                    mostrarToast('Selecione pelo menos uma foto.', 'erro');
+                    btnSubmitGaleria.innerText = "SALVAR GALERIA NO SITE";
+                    btnSubmitGaleria.disabled = false;
+                    return;
+                }
+
+                btnSubmitGaleria.innerText = "SALVANDO NO SITE...";
+
+                const dadosGaleria = {
+                    titulo: document.getElementById('galeria-titulo').value,
+                    data: document.getElementById('galeria-data').value,
+                    local: document.getElementById('galeria-local').value,
+                    fotos: fotosArray,
+                    capa: fotosArray.length > 0 ? fotosArray[0].url : ''
+                };
+
+                if (idGaleriaSendoEditado) {
+                    await updateDoc(doc(db, "galeria", idGaleriaSendoEditado), dadosGaleria);
+                    mostrarToast('Galeria atualizada com sucesso!');
+                } else {
+                    await addDoc(collection(db, "galeria"), dadosGaleria);
+                    mostrarToast('Nova galeria cadastrada com sucesso!');
+                }
+
+                resetarFormularioGaleria();
+                carregarGaleriaAdmin();
+
+            } catch (erro) {
+                console.error("Erro ao salvar galeria:", erro);
+                mostrarToast('Erro ao salvar a galeria.', 'erro');
+                btnSubmitGaleria.innerText = "SALVAR GALERIA NO SITE";
+            } finally {
+                btnSubmitGaleria.disabled = false;
+            }
+        });
+
+        btnCancelarGaleria.addEventListener('click', function() {
+            resetarFormularioGaleria();
+        });
+
+        function resetarFormularioGaleria() {
+            formGaleria.reset();
+            previewGaleria.innerHTML = '';
+            const campoFotos = document.getElementById('galeria-fotos');
+            if (campoFotos) {
+                campoFotos.value = '';
+            }
+            idGaleriaSendoEditado = null;
+            window.galeriaFotosExistentes = null;
+            tituloFormGaleria.innerText = "Adicionar Novo Evento na Galeria";
+            btnSubmitGaleria.innerText = "SALVAR GALERIA NO SITE";
+            btnCancelarGaleria.style.display = "none";
+        }
+
+        // LISTAR GALERIA
+        async function carregarGaleriaAdmin() {
+            try {
+                const galeriaFirebase = await getDocs(collection(db, "galeria"));
+                listaGaleriaAdmin.innerHTML = '';
+
+                if (galeriaFirebase.empty) {
+                    listaGaleriaAdmin.innerHTML = '<p style="color: #888;">Nenhum evento na galeria.</p>';
+                    return;
+                }
+
+                galeriaFirebase.forEach((documento) => {
+                    const evento = documento.data();
+                    const idEvento = documento.id;
+
+                    const div = document.createElement('div');
+                    div.className = 'evento-linha';
+                    div.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            ${evento.capa ? `<img src="${evento.capa}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;" alt="">` : ''}
+                            <div>
+                                <strong style="color: #00cec9;">${evento.titulo}</strong>
+                                <span style="color: #888; font-size: 12px; display: block;">${evento.data}${evento.local ? ' - ' + evento.local : ''}</span>
+                                <span style="color: #666; font-size: 11px;">${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</span>
+                            </div>
+                        </div>
+                        <div class="botoes-acao">
+                            <button class="btn-editar"
+                                data-id="${idEvento}">EDITAR</button>
+                            <button class="btn-apagar" data-id="${idEvento}">APAGAR</button>
+                        </div>
+                    `;
+                    listaGaleriaAdmin.appendChild(div);
+                });
+
+                // APAGAR GALERIA (com exclusão das fotos no Cloudinary)
+                document.querySelectorAll('#lista-galeria-admin .btn-apagar').forEach(botao => {
+                    botao.addEventListener('click', async function() {
+                        if (confirm("Tem certeza que deseja apagar este evento da galeria?")) {
+                            const id = this.getAttribute('data-id');
+
+                            // Primeiro deleta as fotos do Cloudinary
+                            try {
+                                const docSnap = await getDoc(doc(db, "galeria", id));
+                                if (docSnap.exists()) {
+                                    const dados = docSnap.data();
+                                    if (Array.isArray(dados.fotos)) {
+                                        for (const foto of dados.fotos) {
+                                            const publicId = typeof foto === 'object' ? foto.publicId : null;
+                                            if (publicId) {
+                                                try {
+                                                    await fetch(`/api/deletar-foto?publicId=${publicId}`);
+                                                } catch (e) {
+                                                    console.warn("Erro ao deletar foto do Cloudinary:", e);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn("Erro ao buscar dados para deletar fotos:", e);
+                            }
+
+                            await deleteDoc(doc(db, "galeria", id));
+                            mostrarToast('Evento excluído da galeria com sucesso!');
+                            carregarGaleriaAdmin();
+                        }
+                    });
+                });
+
+                // RENDERIZA PREVIEW DAS FOTOS EXISTENTES COM BOTÃO DE REMOVER
+                function renderGaleriaPreview() {
+                    previewGaleria.innerHTML = '';
+                    if (!Array.isArray(window.galeriaFotosExistentes)) return;
+
+                    window.galeriaFotosExistentes.forEach((foto, idx) => {
+                        const url = typeof foto === 'object' ? foto.url : foto;
+                        const publicId = typeof foto === 'object' ? foto.publicId : null;
+
+                        const container = document.createElement('div');
+                        container.style.cssText = 'position:relative;display:inline-block;';
+
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:8px;';
+                        img.title = 'Foto existente';
+                        container.appendChild(img);
+
+                        const btnRemove = document.createElement('button');
+                        btnRemove.innerHTML = '&times;';
+                        btnRemove.style.cssText = 'position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:none;background:#ff4757;color:#fff;font-size:16px;line-height:24px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);';
+                        btnRemove.title = 'Remover esta foto';
+                        btnRemove.addEventListener('click', async function(e) {
+                            e.stopPropagation();
+                            if (!confirm("Remover esta foto do site e do Cloudinary?")) return;
+
+                            if (publicId) {
+                                try {
+                                    await fetch(`/api/deletar-foto?publicId=${publicId}`);
+                                } catch (e) {
+                                    console.warn("Erro ao deletar foto do Cloudinary:", e);
+                                }
+                            }
+
+                            window.galeriaFotosExistentes.splice(idx, 1);
+                            renderGaleriaPreview();
+                        });
+                        container.appendChild(btnRemove);
+
+                        previewGaleria.appendChild(container);
+                    });
+                }
+
+                // EDITAR GALERIA
+                document.querySelectorAll('#lista-galeria-admin .btn-editar').forEach(botao => {
+                    botao.addEventListener('click', async function() {
+                        idGaleriaSendoEditado = this.getAttribute('data-id');
+
+                        try {
+                            const docSnap = await getDoc(doc(db, "galeria", idGaleriaSendoEditado));
+                            if (docSnap.exists()) {
+                                const dados = docSnap.data();
+                                window.galeriaFotosExistentes = dados.fotos || [];
+
+                                renderGaleriaPreview();
+
+                                document.getElementById('galeria-titulo').value = dados.titulo || '';
+                                document.getElementById('galeria-data').value = dados.data || '';
+                                document.getElementById('galeria-local').value = dados.local || '';
+
+                                tituloFormGaleria.innerText = "Editando Evento na Galeria";
+                                btnSubmitGaleria.innerText = "ATUALIZAR GALERIA NO SITE";
+                                btnCancelarGaleria.style.display = "block";
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }
+                        } catch (err) {
+                            console.error("Erro ao carregar dados da galeria:", err);
+                            mostrarToast('Erro ao carregar dados.', 'erro');
+                        }
+                    });
+                });
+
+            } catch (erro) {
+                console.error("Erro ao puxar galeria:", erro);
+            }
+        }
 
     </script>
 </body>

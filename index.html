@@ -31,7 +31,33 @@
     
     <!-- SUBSTITUA O LINK ABAIXO PELO LINK DA SUA IMAGEM DE CAPA -->
     <meta property="og:image" content="https://djtonbk-cd74a.web.app/img/capa-whatsapp.jpg">
-    <link rel="stylesheet" href="./css/style.css?v=13">
+    <link rel="stylesheet" href="./css/style.css?v=24">
+    <!-- JSON-LD: Artista -->
+    <script type="application/ld+json" id="jsonld-artista">
+    {
+        "@context": "https://schema.org",
+        "@type": "MusicGroup",
+        "name": "DJ Ton B.K",
+        "description": "DJ de música eletrônica especializado em casamentos, 15 anos e eventos corporativos.",
+        "url": "https://djtonbk-cd74a.web.app",
+        "image": "https://djtonbk-cd74a.web.app/img/logo.png",
+        "sameAs": [],
+        "genre": ["Eletrônica", "House", "Tech House"],
+        "foundingDate": "2018"
+    }
+    </script>
+    <script type="application/ld+json" id="jsonld-site">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "DJ Ton B.K - Site Oficial",
+        "url": "https://djtonbk-cd74a.web.app"
+    }
+    </script>
+    <!-- JSON-LD: Eventos (atualizado dinamicamente) -->
+    <script type="application/ld+json" id="jsonld-eventos">
+    {"@context":"https://schema.org","@graph":[]}
+    </script>
 </head>
 <body>
     <div class="site-particles"></div>
@@ -51,9 +77,10 @@
                 <li><a href="#servicos">SERVIÇOS</a></li>
                 <li><a href="#sobre">SOBRE</a></li>
                 <li><a href="#agenda">AGENDA</a></li>
+                <li><a href="#galeria">GALERIA</a></li>
                 <li><a href="#contato">CONTATO</a></li>
-                <li><a href="javascript:void(0)" id="btn-presskit">PRESS KIT</a></li>
             </ul>
+            <a href="javascript:void(0)" id="btn-presskit" class="nav-presskit-desktop">PRESS KIT</a>
         </div>
     </nav>
 
@@ -66,7 +93,7 @@
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <span class="hero-badge">DJ / PRODUTOR</span>
-            <h1>TON B.K</h1>
+            <div class="hero-title-wrapper"><h1>TON B.K</h1></div>
             <p>Elevando a energia da sua pista</p>
             <div class="hero-actions">
                 <a href="#servicos" class="btn btn-primary">VER PACOTES</a>
@@ -130,6 +157,39 @@
             <div class="skeleton-agenda"><div class="skeleton skeleton-agenda-cal"></div><div class="skeleton skeleton-agenda-info"><div class="skeleton skeleton-agenda-badge"></div><div class="skeleton skeleton-agenda-title"></div><div class="skeleton skeleton-agenda-local"></div></div></div>
         </div>
     </section>
+
+    <!-- Seção Galeria -->
+    <section id="galeria" class="galeria-section">
+        <div class="container-titulo reveal">
+            <h2>GALERIA</h2>
+            <p class="section-sub">Momentos que marcaram a pista</p>
+        </div>
+        <div class="galeria-grid reveal" id="galeria-grid">
+            <div class="galeria-item skeleton-galeria-item">
+                <div class="skeleton" style="width:100%;height:260px;border-radius:12px;"></div>
+            </div>
+            <div class="galeria-item skeleton-galeria-item">
+                <div class="skeleton" style="width:100%;height:260px;border-radius:12px;"></div>
+            </div>
+            <div class="galeria-item skeleton-galeria-item">
+                <div class="skeleton" style="width:100%;height:260px;border-radius:12px;"></div>
+            </div>
+        </div>
+        <div id="galeria-ver-mais-container" style="text-align:center;margin-top:30px;">
+            <button class="btn" id="btn-ver-mais-galeria" style="display:none;">VER MAIS</button>
+        </div>
+    </section>
+
+    <!-- Modal Galeria (VER MAIS - todos os eventos) -->
+    <div id="modal-galeria" class="modal-overlay">
+        <div class="modal-painel" style="max-width:900px;">
+            <button class="modal-fechar" id="galeria-modal-fechar">&times;</button>
+            <h2 style="margin-bottom:20px;">Todos os Eventos</h2>
+            <div id="galeria-modal-lista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;">
+                <p style="color:#888;">Carregando...</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Seção Contato -->
     <section id="contato" class="contato-section">
@@ -225,6 +285,14 @@
     <div id="zoom-overlay" class="zoom-overlay">
         <button class="zoom-fechar">&times;</button>
         <img id="zoom-img" src="" alt="Flyer Ampliado">
+    </div>
+
+    <!-- Galeria Lightbox -->
+    <div id="galeria-lightbox" class="zoom-overlay">
+        <button class="zoom-fechar" id="galeria-fechar">&times;</button>
+        <img id="galeria-img" src="" alt="Foto ampliada">
+        <button class="galeria-nav galeria-prev" id="galeria-prev">‹</button>
+        <button class="galeria-nav galeria-next" id="galeria-next">›</button>
     </div>
 
     <!-- Puxando o arquivo JavaScript externo -->
@@ -577,6 +645,7 @@
                 });
 
                 ativarBotoesModal();
+                atualizarJsonLdEventos(eventosValidos);
 
             } catch (erro) {
                 console.error("Erro ao puxar agenda:", erro);
@@ -585,6 +654,39 @@
         }
 
         // Função que faz o Modal funcionar e preencher com os dados certos
+        function atualizarJsonLdEventos(eventos) {
+            const eventosSchema = eventos.map(e => {
+                const dataReal = e.dataReal || '';
+                const localNome = e.cidade ? `${e.cidade}, ${e.estado || ''}` : (e.local || '');
+                return {
+                    "@type": "Event",
+                    "name": e.titulo,
+                    "startDate": dataReal,
+                    "description": e.descricao || `Evento com DJ Ton B.K`,
+                    "image": e.imagem || 'https://djtonbk-cd74a.web.app/img/logo.png',
+                    "location": localNome ? {
+                        "@type": "Place",
+                        "name": localNome
+                    } : undefined,
+                    "offers": {
+                        "@type": "Offer",
+                        "availability": "https://schema.org/InStock",
+                        "price": "0",
+                        "priceCurrency": "BRL"
+                    },
+                    "performer": {
+                        "@type": "MusicGroup",
+                        "name": "DJ Ton B.K"
+                    }
+                };
+            }).filter(e => e.startDate);
+
+            document.getElementById('jsonld-eventos').textContent = JSON.stringify({
+                "@context": "https://schema.org",
+                "@graph": eventosSchema
+            });
+        }
+
         function ativarBotoesModal() {
             const botoes = document.querySelectorAll('.btn-detalhes');
             const modal = document.getElementById('modal-evento');
@@ -719,10 +821,167 @@
             }
         });
 
-        // Fecha todos os modais com ESC
+        // ==========================================
+        // GALERIA – CARREGAR DO FIRESTORE
+        // ==========================================
+        const galeriaLightbox = document.getElementById('galeria-lightbox');
+        const galeriaImg = document.getElementById('galeria-img');
+        const galeriaGrid = document.getElementById('galeria-grid');
+        const btnVerMaisGaleria = document.getElementById('btn-ver-mais-galeria');
+        const modalGaleria = document.getElementById('modal-galeria');
+        const galeriaModalLista = document.getElementById('galeria-modal-lista');
+
+        let galeriaEventos = [];
+
+        async function carregarGaleria() {
+            try {
+                const snap = await getDocs(collection(db, "galeria"));
+
+                galeriaEventos = [];
+                snap.forEach(doc => {
+                    galeriaEventos.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Ordenar por data (mais recente primeiro)
+                galeriaEventos.sort((a, b) => {
+                    if (a.data < b.data) return 1;
+                    if (a.data > b.data) return -1;
+                    return 0;
+                });
+
+                // Remover skeletons
+                galeriaGrid.querySelectorAll('.skeleton-galeria-item').forEach(el => el.remove());
+
+                galeriaGrid.innerHTML = '';
+
+                if (galeriaEventos.length === 0) {
+                    galeriaGrid.innerHTML = '<p style="color:#888;grid-column:1/-1;text-align:center;">Nenhum evento cadastrado.</p>';
+                    return;
+                }
+
+                // Mostrar até 3 eventos
+                const mostrar = galeriaEventos.slice(0, 3);
+
+                mostrar.forEach((evento, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'galeria-item';
+                    card.style.cursor = 'pointer';
+                    card.innerHTML = `
+                        <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy">
+                        <div class="galeria-overlay">
+                            <span>${evento.titulo || 'Evento'}</span>
+                            <small>${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</small>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => abrirGaleria(idx, mostrar));
+                    galeriaGrid.appendChild(card);
+                });
+
+                // VER MAIS se houver mais de 3
+                if (galeriaEventos.length > 3) {
+                    btnVerMaisGaleria.style.display = 'inline-block';
+                } else {
+                    btnVerMaisGaleria.style.display = 'none';
+                }
+
+            } catch (erro) {
+                console.error("Erro ao carregar galeria:", erro);
+                galeriaGrid.innerHTML = '<p style="color:#888;text-align:center;">Erro ao carregar galeria.</p>';
+            }
+        }
+
+        // ==========================================
+        // GALERIA LIGHTBOX (por evento)
+        // ==========================================
+        let galeriaFotosAtuais = [];
+        let galeriaIndex = 0;
+
+        function abrirGaleria(index, eventos = galeriaEventos) {
+            const evento = eventos[index];
+            if (!evento || !Array.isArray(evento.fotos) || evento.fotos.length === 0) return;
+            galeriaFotosAtuais = evento.fotos;
+            galeriaIndex = 0;
+            galeriaImg.src = evento.fotos[0].url;
+            galeriaLightbox.classList.add('ativo');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharGaleria() {
+            galeriaLightbox.classList.remove('ativo');
+            document.body.style.overflow = '';
+        }
+
+        function navegarGaleria(dir) {
+            if (galeriaFotosAtuais.length === 0) return;
+            galeriaIndex = (galeriaIndex + dir + galeriaFotosAtuais.length) % galeriaFotosAtuais.length;
+            galeriaImg.src = galeriaFotosAtuais[galeriaIndex].url;
+        }
+
+        document.getElementById('galeria-fechar').addEventListener('click', fecharGaleria);
+        document.getElementById('galeria-prev').addEventListener('click', () => navegarGaleria(-1));
+        document.getElementById('galeria-next').addEventListener('click', () => navegarGaleria(1));
+
+        galeriaLightbox.addEventListener('click', function(e) {
+            if (e.target === this) fecharGaleria();
+        });
+
+        document.addEventListener('keydown', function galeriaKey(e) {
+            if (!galeriaLightbox.classList.contains('ativo')) return;
+            if (e.key === 'ArrowLeft') navegarGaleria(-1);
+            if (e.key === 'ArrowRight') navegarGaleria(1);
+        });
+
+        // ==========================================
+        // GALERIA – VER MAIS MODAL
+        // ==========================================
+        btnVerMaisGaleria.addEventListener('click', function() {
+            galeriaModalLista.innerHTML = '';
+
+            galeriaEventos.forEach((evento, idx) => {
+                const card = document.createElement('div');
+                card.style.cssText = 'cursor:pointer;border-radius:12px;overflow:hidden;position:relative;background:#1a1a2e;';
+                card.innerHTML = `
+                    <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy"
+                         style="width:100%;height:180px;object-fit:cover;display:block;">
+                    <div style="padding:10px;">
+                        <strong style="color:#00cec9;display:block;">${evento.titulo || 'Evento'}</strong>
+                        <span style="color:#888;font-size:12px;">${evento.data || ''}${evento.local ? ' · ' + evento.local : ''}</span>
+                        <span style="color:#666;font-size:11px;display:block;">${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</span>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    modalGaleria.classList.remove('ativo');
+                    document.body.style.overflow = '';
+                    abrirGaleria(idx, galeriaEventos);
+                });
+                galeriaModalLista.appendChild(card);
+            });
+
+            modalGaleria.classList.add('ativo');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('galeria-modal-fechar').addEventListener('click', function() {
+            modalGaleria.classList.remove('ativo');
+            document.body.style.overflow = '';
+        });
+
+        modalGaleria.addEventListener('click', function(e) {
+            if (e.target === this) {
+                modalGaleria.classList.remove('ativo');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Carregar galeria ao iniciar
+        carregarGaleria();
+
+        // ==========================================
+        // FECHA TODOS OS MODAIS COM ESC
+        // ==========================================
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                const modais = ['modal-evento', 'modal-servico', 'modal-presskit', 'zoom-overlay'];
+                const modais = ['modal-evento', 'modal-servico', 'modal-presskit', 'zoom-overlay', 'galeria-lightbox', 'modal-galeria'];
                 modais.forEach(id => {
                     const el = document.getElementById(id);
                     if (el.classList.contains('ativo') || el.classList.contains('aberto')) {
@@ -738,6 +997,9 @@
 
     <script src="js/script.js"></script>
 
+    <!-- Botão Voltar ao Topo -->
+    <button id="back-to-top" class="back-to-top" aria-label="Voltar ao topo">↑</button>
+
     <!-- LGPD Cookie Consent -->
     <div id="lgpd-banner" class="lgpd-banner">
         <p>Utilizamos cookies e tecnologias similares para melhorar sua experiência. Ao continuar, você concorda com nossa <a href="javascript:void(0)">política de privacidade</a>.</p>
@@ -745,6 +1007,18 @@
     </div>
 
     <script>
+        const backToTop = document.getElementById('back-to-top');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 400) {
+                backToTop.classList.add('visivel');
+            } else {
+                backToTop.classList.remove('visivel');
+            }
+        }, { passive: true });
+        backToTop.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
         if (localStorage.getItem('lgpd-aceito') === 'true') {
             document.getElementById('lgpd-banner').style.display = 'none';
         }
