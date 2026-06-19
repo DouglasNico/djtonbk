@@ -866,11 +866,12 @@
                     const card = document.createElement('div');
                     card.className = 'galeria-item';
                     card.style.cursor = 'pointer';
+                    const localStr = evento.cidade ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade) : (evento.local || '');
                     card.innerHTML = `
                         <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy">
                         <div class="galeria-overlay">
                             <span>${evento.titulo || 'Evento'}</span>
-                            <small>${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</small>
+                            <small>${evento.data || ''}${localStr ? ' · ' + localStr : ''}</small>
                             <span class="ampliar-btn">Ampliar</span>
                         </div>
                     `;
@@ -939,6 +940,7 @@
             galeriaModalLista.innerHTML = '';
 
             galeriaEventos.forEach((evento, idx) => {
+                const localStr = evento.cidade ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade) : (evento.local || '');
                 const card = document.createElement('div');
                 card.style.cssText = 'cursor:pointer;border-radius:12px;overflow:hidden;position:relative;background:#1a1a2e;';
                 card.innerHTML = `
@@ -946,7 +948,7 @@
                          style="width:100%;height:180px;object-fit:cover;display:block;">
                     <div style="padding:10px;">
                         <strong style="color:#00cec9;display:block;">${evento.titulo || 'Evento'}</strong>
-                        <span style="color:#888;font-size:12px;">${evento.data || ''}${evento.local ? ' · ' + evento.local : ''}</span>
+                        <span style="color:#888;font-size:12px;">${evento.data || ''}${localStr ? ' · ' + localStr : ''}</span>
                         <span style="color:#666;font-size:11px;display:block;">${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</span>
                     </div>
                 `;

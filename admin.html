@@ -361,10 +361,14 @@ O pacote ideal para eventos intimistas.
                 <form id="form-galeria">
                     <input type="text" id="galeria-titulo" placeholder="Título do Evento" required>
                     <input type="date" id="galeria-data" required>
-                    <input type="text" id="galeria-local" placeholder="Local do Evento">
+                    <div class="campos-dupla">
+                        <input type="text" id="galeria-cidade" placeholder="Cidade">
+                        <input type="text" id="galeria-estado" placeholder="UF (Ex: SP)">
+                    </div>
                     <div class="upload-box">
-                        <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">Fotos do Evento (selecione várias)</label>
+                        <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">Fotos do Evento</label>
                         <input type="file" id="galeria-fotos" accept="image/*" multiple style="padding: 10px; background: #222;">
+                        <p style="color: #666; font-size: 12px; margin: 5px 0;">Clique novamente para adicionar mais fotos sem perder as já selecionadas.</p>
                         <div id="galeria-preview" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;"></div>
                     </div>
                     <button type="submit" class="btn-salvar" id="btn-submit-galeria">SALVAR GALERIA NO SITE</button>
@@ -416,14 +420,16 @@ O pacote ideal para eventos intimistas.
 
         // Abre o calendário ao clicar em qualquer lugar no campo data
         document.addEventListener('DOMContentLoaded', () => {
-            const dataReal = document.getElementById('data-real');
-            if (dataReal) {
-                dataReal.addEventListener('click', function() {
-                    if (typeof this.showPicker === 'function') {
-                        this.showPicker();
-                    }
-                });
-            }
+            ['data-real', 'galeria-data'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('click', function() {
+                        if (typeof this.showPicker === 'function') {
+                            this.showPicker();
+                        }
+                    });
+                }
+            });
         });
 
         // Referências dos Elementos
@@ -956,6 +962,7 @@ O pacote ideal para eventos intimistas.
         }
 
         // ==========================================
+        // ==========================================
         // CRUD - GALERIA
         // ==========================================
 
@@ -965,73 +972,133 @@ O pacote ideal para eventos intimistas.
         const tituloFormGaleria = document.getElementById('titulo-form-galeria');
         const listaGaleriaAdmin = document.getElementById('lista-galeria-admin');
         const previewGaleria = document.getElementById('galeria-preview');
+        const inputGaleriaFotos = document.getElementById('galeria-fotos');
 
         let idGaleriaSendoEditado = null;
+        let galeriaPendingFiles = [];
+        let galeriaCapaIdx = 0;
 
-        // PREVIEW DAS FOTOS SELECIONADAS
-        document.getElementById('galeria-fotos').addEventListener('change', function() {
-            previewGaleria.innerHTML = '';
+        // ==========================================
+        // FILE INPUT: APPEND em vez de substituir
+        // ==========================================
+        inputGaleriaFotos.addEventListener('change', function() {
             for (const file of this.files) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.style.width = '100px';
-                img.style.height = '100px';
-                img.style.objectFit = 'cover';
-                img.style.borderRadius = '8px';
-                previewGaleria.appendChild(img);
+                galeriaPendingFiles.push({ file, previewUrl: URL.createObjectURL(file) });
             }
+            this.value = '';
+            renderGaleriaPreview();
         });
 
+        // ==========================================
+        // RENDERIZA PREVIEW (existentes + pending)
+        // ==========================================
+        function renderGaleriaPreview() {
+            previewGaleria.innerHTML = '';
+            let totalIdx = 0;
+
+            // Fotos existentes (Firestore)
+            const existentes = window.galeriaFotosExistentes || [];
+
+            existentes.forEach((foto, i) => {
+                const url = typeof foto === 'object' ? foto.url : foto;
+                const publicId = typeof foto === 'object' ? foto.publicId : null;
+                previewGaleria.appendChild(criarThumbPreview(url, 'existente', i, publicId, totalIdx));
+                totalIdx++;
+            });
+
+            // Fotos pendentes (novos uploads)
+            galeriaPendingFiles.forEach((item, i) => {
+                previewGaleria.appendChild(criarThumbPreview(item.previewUrl, 'pending', i, null, totalIdx));
+                totalIdx++;
+            });
+        }
+
+        function criarThumbPreview(src, tipo, idx, publicId, totalIdx) {
+            const container = document.createElement('div');
+            container.style.cssText = 'position:relative;display:inline-block;';
+
+            const img = document.createElement('img');
+            img.src = src;
+            img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:8px;border:' + (totalIdx === galeriaCapaIdx ? '2px solid #ffd700' : '2px solid transparent') + ';';
+            img.title = tipo === 'pending' ? 'Nova foto' : 'Foto existente';
+            container.appendChild(img);
+
+            // X — REMOVER
+            const btnX = document.createElement('button');
+            btnX.innerHTML = '&times;';
+            btnX.style.cssText = 'position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:none;background:#ff4757;color:#fff;font-size:16px;line-height:24px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);z-index:2;';
+            btnX.title = 'Remover';
+            btnX.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (tipo === 'pending') {
+                    URL.revokeObjectURL(src);
+                    galeriaPendingFiles.splice(idx, 1);
+                } else {
+                    if (!confirm("Remover esta foto do site e do Cloudinary?")) return;
+                    if (publicId) {
+                        fetch(`/api/deletar-foto?publicId=${publicId}`).catch(e => console.warn(e));
+                    }
+                    window.galeriaFotosExistentes.splice(idx, 1);
+                }
+                if (galeriaCapaIdx >= totalIdx && galeriaCapaIdx > 0) galeriaCapaIdx--;
+                renderGaleriaPreview();
+            });
+            container.appendChild(btnX);
+
+            // ★ — CAPA
+            const btnCapa = document.createElement('button');
+            btnCapa.innerHTML = totalIdx === galeriaCapaIdx ? '&#9733;' : '&#9734;';
+            btnCapa.style.cssText = 'position:absolute;bottom:4px;left:4px;width:26px;height:26px;border-radius:50%;border:2px solid ' + (totalIdx === galeriaCapaIdx ? '#ffd700' : 'rgba(255,255,255,0.3)') + ';background:' + (totalIdx === galeriaCapaIdx ? '#ffd700' : 'rgba(0,0,0,0.5)') + ';color:' + (totalIdx === galeriaCapaIdx ? '#111' : '#fff') + ';font-size:14px;line-height:22px;text-align:center;cursor:pointer;z-index:2;';
+            btnCapa.title = totalIdx === galeriaCapaIdx ? 'Foto de capa' : 'Definir como capa';
+            btnCapa.addEventListener('click', function(e) {
+                e.stopPropagation();
+                galeriaCapaIdx = totalIdx;
+                renderGaleriaPreview();
+            });
+            container.appendChild(btnCapa);
+
+            return container;
+        }
+
+        // ==========================================
         // SALVAR / EDITAR GALERIA
+        // ==========================================
         formGaleria.addEventListener('submit', async function(e) {
             e.preventDefault();
             btnSubmitGaleria.innerText = "SALVANDO... AGUARDE";
             btnSubmitGaleria.disabled = true;
 
             try {
-                const campoFotos = document.getElementById('galeria-fotos');
-                let fotosArray = [];
+                let fotosFinal = [];
 
-                // Se já estamos editando, mantém as fotos existentes
-                if (idGaleriaSendoEditado && window.galeriaFotosExistentes) {
-                    fotosArray = [...window.galeriaFotosExistentes];
-                }
-
-                // Upload das novas fotos
-                if (campoFotos.files.length > 0) {
+                // 1. Pending — fazer upload para Cloudinary
+                if (galeriaPendingFiles.length > 0) {
                     btnSubmitGaleria.innerText = "ENVIANDO FOTOS...";
                     const cloudName = "dycwp4ds9";
                     const uploadPreset = "djtonbk";
 
-                    for (const arquivo of campoFotos.files) {
+                    for (const item of galeriaPendingFiles) {
                         const formData = new FormData();
-                        formData.append('file', arquivo);
+                        formData.append('file', item.file);
                         formData.append('upload_preset', uploadPreset);
 
-                        const respostaCloudinary = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                        const resp = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
                             method: 'POST',
                             body: formData
                         });
-
-                        const dadosCloudinary = await respostaCloudinary.json();
-
-                        if (dadosCloudinary.secure_url) {
-                            fotosArray.push({
-                                url: dadosCloudinary.secure_url,
-                                publicId: dadosCloudinary.public_id
-                            });
+                        const dados = await resp.json();
+                        if (dados.secure_url) {
+                            fotosFinal.push({ url: dados.secure_url, publicId: dados.public_id });
                         }
                     }
                 }
 
-                if (idGaleriaSendoEditado && campoFotos.files.length === 0 && (!window.galeriaFotosExistentes || window.galeriaFotosExistentes.length === 0)) {
-                    mostrarToast('Selecione pelo menos uma foto.', 'erro');
-                    btnSubmitGaleria.innerText = "SALVAR GALERIA NO SITE";
-                    btnSubmitGaleria.disabled = false;
-                    return;
-                }
+                const existentes = window.galeriaFotosExistentes || [];
 
-                if (fotosArray.length === 0) {
+                // Montar array final: existentes + novas
+                const arrayFinal = [...existentes, ...fotosFinal];
+
+                if (arrayFinal.length === 0) {
                     mostrarToast('Selecione pelo menos uma foto.', 'erro');
                     btnSubmitGaleria.innerText = "SALVAR GALERIA NO SITE";
                     btnSubmitGaleria.disabled = false;
@@ -1040,12 +1107,19 @@ O pacote ideal para eventos intimistas.
 
                 btnSubmitGaleria.innerText = "SALVANDO NO SITE...";
 
+                const cidade = document.getElementById('galeria-cidade').value;
+                const estado = document.getElementById('galeria-estado').value;
+
+                const capaIdx = Math.min(galeriaCapaIdx, arrayFinal.length - 1);
+
                 const dadosGaleria = {
                     titulo: document.getElementById('galeria-titulo').value,
                     data: document.getElementById('galeria-data').value,
-                    local: document.getElementById('galeria-local').value,
-                    fotos: fotosArray,
-                    capa: fotosArray.length > 0 ? fotosArray[0].url : ''
+                    cidade,
+                    estado,
+                    local: cidade && estado ? `${cidade}, ${estado}` : cidade || estado || '',
+                    fotos: arrayFinal,
+                    capa: arrayFinal.length > 0 ? arrayFinal[capaIdx].url : ''
                 };
 
                 if (idGaleriaSendoEditado) {
@@ -1075,10 +1149,10 @@ O pacote ideal para eventos intimistas.
         function resetarFormularioGaleria() {
             formGaleria.reset();
             previewGaleria.innerHTML = '';
-            const campoFotos = document.getElementById('galeria-fotos');
-            if (campoFotos) {
-                campoFotos.value = '';
-            }
+            galeriaPendingFiles.forEach(item => URL.revokeObjectURL(item.previewUrl));
+            galeriaPendingFiles = [];
+            galeriaCapaIdx = 0;
+            if (inputGaleriaFotos) inputGaleriaFotos.value = '';
             idGaleriaSendoEditado = null;
             window.galeriaFotosExistentes = null;
             tituloFormGaleria.innerText = "Adicionar Novo Evento na Galeria";
@@ -1086,7 +1160,9 @@ O pacote ideal para eventos intimistas.
             btnCancelarGaleria.style.display = "none";
         }
 
-        // LISTAR GALERIA
+        // ==========================================
+        // LISTAR GALERIA NO ADMIN
+        // ==========================================
         async function carregarGaleriaAdmin() {
             try {
                 const galeriaFirebase = await getDocs(collection(db, "galeria"));
@@ -1101,54 +1177,48 @@ O pacote ideal para eventos intimistas.
                     const evento = documento.data();
                     const idEvento = documento.id;
 
+                    const localStr = evento.cidade
+                        ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade)
+                        : (evento.local || '');
+
                     const div = document.createElement('div');
                     div.className = 'evento-linha';
                     div.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            ${evento.capa ? `<img src="${evento.capa}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;" alt="">` : ''}
+                            ${evento.capa ? `<img src="${evento.capa}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: ${evento.capa === (Array.isArray(evento.fotos) && evento.fotos[0] ? '' : '2px solid #ffd700')}" alt="">` : ''}
                             <div>
                                 <strong style="color: #00cec9;">${evento.titulo}</strong>
-                                <span style="color: #888; font-size: 12px; display: block;">${evento.data}${evento.local ? ' - ' + evento.local : ''}</span>
+                                <span style="color: #888; font-size: 12px; display: block;">${evento.data}${localStr ? ' — ' + localStr : ''}</span>
                                 <span style="color: #666; font-size: 11px;">${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</span>
                             </div>
                         </div>
                         <div class="botoes-acao">
-                            <button class="btn-editar"
-                                data-id="${idEvento}">EDITAR</button>
+                            <button class="btn-editar" data-id="${idEvento}">EDITAR</button>
                             <button class="btn-apagar" data-id="${idEvento}">APAGAR</button>
                         </div>
                     `;
                     listaGaleriaAdmin.appendChild(div);
                 });
 
-                // APAGAR GALERIA (com exclusão das fotos no Cloudinary)
+                // APAGAR GALERIA
                 document.querySelectorAll('#lista-galeria-admin .btn-apagar').forEach(botao => {
                     botao.addEventListener('click', async function() {
                         if (confirm("Tem certeza que deseja apagar este evento da galeria?")) {
                             const id = this.getAttribute('data-id');
-
-                            // Primeiro deleta as fotos do Cloudinary
                             try {
                                 const docSnap = await getDoc(doc(db, "galeria", id));
                                 if (docSnap.exists()) {
                                     const dados = docSnap.data();
                                     if (Array.isArray(dados.fotos)) {
                                         for (const foto of dados.fotos) {
-                                            const publicId = typeof foto === 'object' ? foto.publicId : null;
-                                            if (publicId) {
-                                                try {
-                                                    await fetch(`/api/deletar-foto?publicId=${publicId}`);
-                                                } catch (e) {
-                                                    console.warn("Erro ao deletar foto do Cloudinary:", e);
-                                                }
+                                            const pid = typeof foto === 'object' ? foto.publicId : null;
+                                            if (pid) {
+                                                try { await fetch(`/api/deletar-foto?publicId=${pid}`); } catch (e) { console.warn(e); }
                                             }
                                         }
                                     }
                                 }
-                            } catch (e) {
-                                console.warn("Erro ao buscar dados para deletar fotos:", e);
-                            }
-
+                            } catch (e) { console.warn(e); }
                             await deleteDoc(doc(db, "galeria", id));
                             mostrarToast('Evento excluído da galeria com sucesso!');
                             carregarGaleriaAdmin();
@@ -1156,65 +1226,32 @@ O pacote ideal para eventos intimistas.
                     });
                 });
 
-                // RENDERIZA PREVIEW DAS FOTOS EXISTENTES COM BOTÃO DE REMOVER
-                function renderGaleriaPreview() {
-                    previewGaleria.innerHTML = '';
-                    if (!Array.isArray(window.galeriaFotosExistentes)) return;
-
-                    window.galeriaFotosExistentes.forEach((foto, idx) => {
-                        const url = typeof foto === 'object' ? foto.url : foto;
-                        const publicId = typeof foto === 'object' ? foto.publicId : null;
-
-                        const container = document.createElement('div');
-                        container.style.cssText = 'position:relative;display:inline-block;';
-
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:8px;';
-                        img.title = 'Foto existente';
-                        container.appendChild(img);
-
-                        const btnRemove = document.createElement('button');
-                        btnRemove.innerHTML = '&times;';
-                        btnRemove.style.cssText = 'position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:none;background:#ff4757;color:#fff;font-size:16px;line-height:24px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);';
-                        btnRemove.title = 'Remover esta foto';
-                        btnRemove.addEventListener('click', async function(e) {
-                            e.stopPropagation();
-                            if (!confirm("Remover esta foto do site e do Cloudinary?")) return;
-
-                            if (publicId) {
-                                try {
-                                    await fetch(`/api/deletar-foto?publicId=${publicId}`);
-                                } catch (e) {
-                                    console.warn("Erro ao deletar foto do Cloudinary:", e);
-                                }
-                            }
-
-                            window.galeriaFotosExistentes.splice(idx, 1);
-                            renderGaleriaPreview();
-                        });
-                        container.appendChild(btnRemove);
-
-                        previewGaleria.appendChild(container);
-                    });
-                }
-
                 // EDITAR GALERIA
                 document.querySelectorAll('#lista-galeria-admin .btn-editar').forEach(botao => {
                     botao.addEventListener('click', async function() {
                         idGaleriaSendoEditado = this.getAttribute('data-id');
-
                         try {
                             const docSnap = await getDoc(doc(db, "galeria", idGaleriaSendoEditado));
                             if (docSnap.exists()) {
                                 const dados = docSnap.data();
                                 window.galeriaFotosExistentes = dados.fotos || [];
 
+                                // Encontra o índice da capa
+                                galeriaCapaIdx = 0;
+                                if (dados.capa && Array.isArray(dados.fotos)) {
+                                    const found = dados.fotos.findIndex(f => {
+                                        const url = typeof f === 'object' ? f.url : f;
+                                        return url === dados.capa;
+                                    });
+                                    if (found >= 0) galeriaCapaIdx = found;
+                                }
+
                                 renderGaleriaPreview();
 
                                 document.getElementById('galeria-titulo').value = dados.titulo || '';
                                 document.getElementById('galeria-data').value = dados.data || '';
-                                document.getElementById('galeria-local').value = dados.local || '';
+                                document.getElementById('galeria-cidade').value = dados.cidade || '';
+                                document.getElementById('galeria-estado').value = dados.estado || '';
 
                                 tituloFormGaleria.innerText = "Editando Evento na Galeria";
                                 btnSubmitGaleria.innerText = "ATUALIZAR GALERIA NO SITE";
