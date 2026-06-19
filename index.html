@@ -871,6 +871,7 @@
                         <div class="galeria-overlay">
                             <span>${evento.titulo || 'Evento'}</span>
                             <small>${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</small>
+                            <span class="ampliar-btn">Ampliar</span>
                         </div>
                     `;
                     card.addEventListener('click', () => abrirGaleria(idx, mostrar));
