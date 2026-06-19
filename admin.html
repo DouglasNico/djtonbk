@@ -966,6 +966,13 @@ O pacote ideal para eventos intimistas.
         // CRUD - GALERIA
         // ==========================================
 
+        function formatarData(d) {
+            if (!d) return '';
+            const partes = d.split('-');
+            if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            return d;
+        }
+
         const formGaleria = document.getElementById('form-galeria');
         const btnSubmitGaleria = document.getElementById('btn-submit-galeria');
         const btnCancelarGaleria = document.getElementById('btn-cancelar-galeria');
@@ -1188,7 +1195,7 @@ O pacote ideal para eventos intimistas.
                             ${evento.capa ? `<img src="${evento.capa}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: ${evento.capa === (Array.isArray(evento.fotos) && evento.fotos[0] ? '' : '2px solid #ffd700')}" alt="">` : ''}
                             <div>
                                 <strong style="color: #00cec9;">${evento.titulo}</strong>
-                                <span style="color: #888; font-size: 12px; display: block;">${evento.data}${localStr ? ' — ' + localStr : ''}</span>
+                                <span style="color: #888; font-size: 12px; display: block;">${formatarData(evento.data)}${localStr ? ' — ' + localStr : ''}</span>
                                 <span style="color: #666; font-size: 11px;">${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</span>
                             </div>
                         </div>

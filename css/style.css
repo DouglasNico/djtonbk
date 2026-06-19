@@ -1759,7 +1759,100 @@ body::before {
 }
 
 /* =========================================
-    13. FOOTER (RODAPÉ)
+    13.5 — MODAL GALERIA (VER MAIS)
+    ========================================= */
+.modal-galeria-painel {
+    max-width: 1100px;
+    width: 90%;
+    padding: 40px;
+}
+
+.modal-galeria-titulo {
+    margin-bottom: 24px;
+    font-size: 22px;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.modal-galeria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.modal-galeria-card {
+    cursor: pointer;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+.modal-galeria-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,206,201,0.12);
+    border-color: rgba(0,206,201,0.25);
+}
+
+.modal-galeria-card-img {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.modal-galeria-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.modal-galeria-card:hover .modal-galeria-card-img img {
+    transform: scale(1.08);
+}
+
+.modal-galeria-card-img::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, #1a1a2e, transparent);
+    pointer-events: none;
+}
+
+.modal-galeria-card-body {
+    padding: 14px 16px 16px;
+    position: relative;
+    z-index: 1;
+    margin-top: -8px;
+}
+
+.modal-galeria-card-body strong {
+    color: #00cec9;
+    display: block;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.modal-galeria-card-meta {
+    color: #888;
+    font-size: 12px;
+}
+
+.modal-galeria-card-fotos {
+    color: #666;
+    font-size: 11px;
+    display: block;
+    margin-top: 2px;
+}
+
+/* =========================================
+    14. FOOTER (RODAPÉ)
     ========================================= */
 .footer {
     background-color: #050505;
@@ -2599,6 +2692,33 @@ body::before {
         width: 42px;
         height: 42px;
         font-size: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-galeria-painel {
+        padding: 24px 16px;
+        width: 95%;
+    }
+    .modal-galeria-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 14px;
+    }
+    .modal-galeria-card-img {
+        height: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-galeria-painel {
+        padding: 20px 12px;
+    }
+    .modal-galeria-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .modal-galeria-card-img {
+        height: 180px;
     }
 }
 

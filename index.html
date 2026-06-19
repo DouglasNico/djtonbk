@@ -182,10 +182,10 @@
 
     <!-- Modal Galeria (VER MAIS - todos os eventos) -->
     <div id="modal-galeria" class="modal-overlay">
-        <div class="modal-painel" style="max-width:900px;">
+        <div class="modal-painel modal-galeria-painel">
             <button class="modal-fechar" id="galeria-modal-fechar">&times;</button>
-            <h2 style="margin-bottom:20px;">Todos os Eventos</h2>
-            <div id="galeria-modal-lista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;">
+            <h2 class="modal-galeria-titulo">Todos os Eventos</h2>
+            <div id="galeria-modal-lista" class="modal-galeria-grid">
                 <p style="color:#888;">Carregando...</p>
             </div>
         </div>
@@ -824,6 +824,14 @@
         // ==========================================
         // GALERIA – CARREGAR DO FIRESTORE
         // ==========================================
+
+        function formatarData(d) {
+            if (!d) return '';
+            const partes = d.split('-');
+            if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            return d;
+        }
+
         const galeriaLightbox = document.getElementById('galeria-lightbox');
         const galeriaImg = document.getElementById('galeria-img');
         const galeriaGrid = document.getElementById('galeria-grid');
@@ -871,7 +879,7 @@
                         <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy">
                         <div class="galeria-overlay">
                             <span>${evento.titulo || 'Evento'}</span>
-                            <small>${evento.data || ''}${localStr ? ' · ' + localStr : ''}</small>
+                            <small>${formatarData(evento.data)}${localStr ? ' · ' + localStr : ''}</small>
                             <span class="ampliar-btn">Ampliar</span>
                         </div>
                     `;
@@ -942,14 +950,15 @@
             galeriaEventos.forEach((evento, idx) => {
                 const localStr = evento.cidade ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade) : (evento.local || '');
                 const card = document.createElement('div');
-                card.style.cssText = 'cursor:pointer;border-radius:12px;overflow:hidden;position:relative;background:#1a1a2e;';
+                card.className = 'modal-galeria-card';
                 card.innerHTML = `
-                    <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy"
-                         style="width:100%;height:180px;object-fit:cover;display:block;">
-                    <div style="padding:10px;">
-                        <strong style="color:#00cec9;display:block;">${evento.titulo || 'Evento'}</strong>
-                        <span style="color:#888;font-size:12px;">${evento.data || ''}${localStr ? ' · ' + localStr : ''}</span>
-                        <span style="color:#666;font-size:11px;display:block;">${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</span>
+                    <div class="modal-galeria-card-img">
+                        <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy">
+                    </div>
+                    <div class="modal-galeria-card-body">
+                        <strong>${evento.titulo || 'Evento'}</strong>
+                        <span class="modal-galeria-card-meta">${formatarData(evento.data)}${localStr ? ' · ' + localStr : ''}</span>
+                        <span class="modal-galeria-card-fotos">${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</span>
                     </div>
                 `;
                 card.addEventListener('click', () => {
