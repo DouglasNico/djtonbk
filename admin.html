@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - DJ Ton B.K</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background-color: #111; color: #fff; padding: 40px 20px; font-family: sans-serif; min-height: 100vh; box-sizing: border-box; }
+        
+        /* ESTILOS DA TELA DE LOGIN */
+        .login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+        .login-box { background-color: #1a1a1a; padding: 40px; border-radius: 8px; border: 1px solid #333; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .login-box h2 { color: #00cec9; margin-bottom: 30px; font-size: 28px; }
+        
+        /* ESTILOS DO PAINEL ADMIN */
+        .admin-container { max-width: 800px; margin: 0 auto; display: none; } /* Inicia escondido */
+        .admin-header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        .admin-header { color: #00cec9; margin: 0; }
+        .btn-sair { background-color: transparent; color: #ff4757; border: 1px solid #ff4757; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .btn-sair:hover { background-color: #ff4757; color: #fff; }
+        
+      /* CAMPOS DE INPUT E TEXTAREA - AJUSTADOS PARA MAIOR CONTRASTE */
+        .form-box input, .form-box textarea, .login-box input {
+            width: 100%; 
+            padding: 15px; 
+            margin-bottom: 15px;
+            background-color: #2a2a2a; 
+            border: 1px solid #444;    
+            color: #fff; 
+            border-radius: 4px; 
+            box-sizing: border-box;
+            transition: border-color 0.3s, background-color 0.3s;
+            resize: vertical;
+        }
+
+        .campos-dupla {
+            display: flex;
+            gap: 10px;
+        }
+        .campos-dupla input {
+            flex: 1;
+        }
+
+        /* ESTILO DO INPUT DATE (calendário escuro) */
+        input[type="date"] {
+            color-scheme: dark;
+            color: #fff;
+            background-color: #2a2a2a;
+            cursor: pointer;
+            min-height: 47px;
+        }
+        input[type="date"]:hover {
+            background-color: #333;
+            border-color: #00cec9;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2300cec9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            background-color: rgba(0, 206, 201, 0.2);
+        }
+
+        /* TOAST DE NOTIFICAÇÃO */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-left: 4px solid #00cec9;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            animation: toastIn 0.35s ease, toastOut 0.35s ease 3s forwards;
+            max-width: 380px;
+        }
+        .toast.erro { border-left-color: #ff4757; }
+        .toast.erro strong { color: #ff4757; }
+        .toast strong { color: #00cec9; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(60px); }
+        }
+
+        /* Cor do texto de exemplo (Placeholder) */
+        .form-box input::placeholder, .form-box textarea::placeholder, .login-box input::placeholder {
+            color: #aaa; 
+        }
+
+        /* Efeito quando você clica no campo para digitar */
+        .form-box input:focus, .form-box textarea:focus, .login-box input:focus { 
+            outline: none; 
+            border-color: #00cec9; 
+            background-color: #333; 
+        }
+
+        /* BOTÕES */
+        .btn-salvar { background-color: #00cec9; color: #111; width: 100%; font-weight: bold; padding: 15px; border: none; cursor: pointer; border-radius: 4px; transition: all 0.3s ease; }
+        .btn-salvar:hover { background-color: #00f0ea; transform: translateY(-2px); }
+        
+        .btn-cancelar { background-color: #555; color: #fff; width: 100%; font-weight: bold; padding: 15px; border: none; cursor: pointer; border-radius: 4px; margin-top: 10px; display: none; transition: all 0.3s ease; }
+        .btn-cancelar:hover { background-color: #777; transform: translateY(-2px); }
+        
+        /* LISTA DE EVENTOS CADASTRADOS */
+        .evento-linha { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; padding: 15px 20px; margin-bottom: 10px; border-left: 4px solid #00cec9; border-radius: 4px; transition: all 0.3s ease; }
+        .evento-linha:hover { background-color: #252525; transform: translateX(10px); box-shadow: -5px 5px 15px rgba(0, 0, 0, 0.4); }
+        
+        .botoes-acao { display: flex; gap: 10px; }
+        .btn-apagar { background-color: #ff4757; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s ease; }
+        .btn-editar { background-color: #f1c40f; color: #111; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s ease; }
+        .btn-apagar:hover { background-color: #ff6b81; transform: scale(1.05); }
+        .btn-editar:hover { background-color: #f7d754; transform: scale(1.05); }
+    
+/* ESTILO DO CAMPO DE UPLOAD */
+        .upload-box { background-color: #2a2a2a; border: 1px dashed #555; padding: 15px; border-radius: 4px; margin-bottom: 15px; }
+        input[type="file"]::file-selector-button {
+            background-color: #00cec9; color: #111; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 15px; transition: 0.3s;
+        }
+        input[type="file"]::file-selector-button:hover { background-color: #00f0ea; }
+
+
+       /* =========================================
+           RESPONSIVO (CELULAR) - PAINEL ADMIN
+           ========================================= */
+        @media (max-width: 768px) {
+            /* 1. Ajusta o espaço geral da tela */
+            body { padding: 20px 10px; }
+            .form-box { padding: 20px 15px; }
+            
+            /* 2. Empilha o título do painel e o botão de Sair */
+            .admin-header-box { 
+                flex-direction: column; 
+                gap: 15px; 
+                text-align: center; 
+            }
+            .btn-sair { width: 100%; }
+
+            /* 3. Empilha o evento e os botões de ação */
+            .evento-linha { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 15px; 
+            }
+            
+            /* Garante que o texto do evento ocupe a largura toda */
+            .evento-linha > div:first-child {
+                width: 100%;
+                line-height: 1.5;
+            }
+
+            /* 4. Ajusta os botões EDITAR e APAGAR */
+            .botoes-acao { 
+                width: 100%; 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 10px;
+            }
+            .btn-editar, .btn-apagar { 
+                width: 100%; 
+                text-align: center; 
+                padding: 12px 10px; 
+            }
+            
+            /* 5. Ajusta a tela de Login */
+            .login-box { padding: 30px 20px; }
+            .login-box h2 { font-size: 24px; }
+
+            /* 6. NOVO: Ajusta o campo de Upload de Imagem no celular */
+            .upload-box { padding: 15px 10px; }
+            input[type="file"] { 
+                width: 100%; 
+                font-size: 13px; 
+                white-space: normal; /* Deixa o nome da foto quebrar de linha se for muito grande */
+            }
+            input[type="file"]::file-selector-button {
+                display: block; 
+                width: 100%; 
+                margin-bottom: 10px; 
+                margin-right: 0; 
+                text-align: center;
+            }
+            
+            /* 7. Campos dupla empilha no celular */
+            .campos-dupla {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    
+        /* ESTILO DAS ABAS (TABS) */
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            background: transparent;
+            color: #888;
+            border: none;
+            padding: 12px 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            border-radius: 4px 4px 0 0;
+            letter-spacing: 0.5px;
+        }
+        .tab-btn:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.03);
+        }
+        .tab-btn.ativo {
+            color: #00cec9;
+            border-bottom-color: #00cec9;
+            background: rgba(0,206,201,0.05);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.ativo {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* AJUSTE RESPONSIVO DAS ABAS */
+        @media (max-width: 768px) {
+            .admin-tabs { gap: 5px; }
+            .tab-btn { padding: 10px 15px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <div id="secao-login" class="login-wrapper">
+        <div class="login-box">
+            <h2>Área Restrita</h2>
+            <form id="form-login">
+                <input type="email" id="login-email" placeholder="E-mail do Administrador" required>
+                <input type="password" id="login-senha" placeholder="Sua Senha" required>
+                <button type="submit" class="btn-salvar" id="btn-entrar">ENTRAR NO PAINEL</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="secao-painel" class="admin-container">
+        <div class="admin-header-box">
+            <h1 class="admin-header">Painel Administrativo</h1>
+            <button id="btn-logout" class="btn-sair">SAIR / LOGOUT</button>
+        </div>
+
+        <!-- NAVEGAÇÃO POR ABAS -->
+        <div class="admin-tabs">
+            <button class="tab-btn ativo" data-tab="agenda">📅 Agenda</button>
+            <button class="tab-btn" data-tab="servicos">🎵 Serviços</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- ABA: AGENDA                                 -->
+        <!-- ========================================== -->
+        <div id="tab-agenda" class="tab-content ativo">
+            <div class="form-box">
+                <h3 id="titulo-form" style="margin-bottom: 20px;">Adicionar Novo Evento</h3>
+                <form id="form-admin">
+                    <input type="text" id="titulo" placeholder="Nome da Festa (Ex: Sunset Festival)" required>
+                    <input type="date" id="data-real" required>
+                    <input type="text" id="categoria" placeholder="Categoria (Ex: CLUB, FESTIVAL, CASAMENTO)">
+                    <div class="campos-dupla">
+                        <input type="text" id="cidade" placeholder="Cidade" required>
+                        <input type="text" id="estado" placeholder="UF (SP)" required>
+                    </div>
+                    <div class="upload-box">
+                        <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">Flyer do Evento (Upload ou Link)</label>
+                        <input type="file" id="imagem-upload" accept="image/*" style="padding: 10px; background: #222;">
+                        <p style="text-align: center; margin: 5px 0; color: #666; font-size: 12px;">OU</p>
+                        <input type="text" id="imagem" placeholder="Cole o link de uma imagem aqui (Opcional)">
+                    </div>
+                    <textarea id="descricao" rows="3" placeholder="Descrição curta do evento..." required></textarea>
+                    
+                    <button type="submit" class="btn-salvar" id="btn-submit">SALVAR EVENTO NO SITE</button>
+                    <button type="button" class="btn-cancelar" id="btn-cancelar">CANCELAR EDIÇÃO</button>
+                </form>
+            </div>
+
+            <h3>Eventos Cadastrados</h3>
+            <div id="lista-admin">
+                <p style="color: #888;">Carregando eventos...</p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- ABA: SERVIÇOS                               -->
+        <!-- ========================================== -->
+        <div id="tab-servicos" class="tab-content">
+            <div class="form-box">
+                <h3 id="titulo-form-servico" style="margin-bottom: 20px;">Adicionar Novo Serviço</h3>
+                <form id="form-servico">
+                    <input type="text" id="servico-nome" placeholder="Nome do Serviço (Ex: Som e Iluminação)" required>
+                    <input type="text" id="servico-categoria" placeholder="Categoria (Ex: Pacote Básico, Locação)">
+                    <input type="text" id="servico-preco" placeholder="Valor (Ex: 2.500)">
+                    <div class="upload-box">
+                        <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">Imagem do Serviço (Upload ou Link)</label>
+                        <input type="file" id="servico-imagem-upload" accept="image/*" style="padding: 10px; background: #222;">
+                        <p style="text-align: center; margin: 5px 0; color: #666; font-size: 12px;">OU</p>
+                        <input type="text" id="servico-imagem" placeholder="Cole o link de uma imagem aqui (Opcional)">
+                    </div>
+                    <textarea id="servico-descricao" rows="10" placeholder="Digite uma descrição e liste os itens com &quot;- &quot; na frente.
+
+Ex:
+O pacote ideal para eventos intimistas.
+- DJ profissional 4h
+- Caixa de som JBL amplificada
+- Mesa de som 4 canais
+- Playlist personalizada"></textarea>
+                    
+                    <button type="submit" class="btn-salvar" id="btn-submit-servico">SALVAR SERVIÇO NO SITE</button>
+                    <button type="button" class="btn-cancelar" id="btn-cancelar-servico">CANCELAR EDIÇÃO</button>
+                </form>
+            </div>
+
+            <h3>Serviços Cadastrados</h3>
+            <div id="lista-servicos-admin">
+                <p style="color: #888;">Carregando serviços...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        // Importamos as ferramentas de Autenticação aqui
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // ==========================================
+        // COLE O SEU FIREBASE CONFIG AQUI EMBAIXO:
+        // ==========================================
+        const firebaseConfig = {
+        apiKey: "AIzaSyDIAoHn4sonalm2NRS3Gcr2tCRlFx_cKnI",
+        authDomain: "djtonbk-cd74a.firebaseapp.com",
+        projectId: "djtonbk-cd74a",
+        storageBucket: "djtonbk-cd74a.firebasestorage.app",
+        messagingSenderId: "894050883896",
+        appId: "1:894050883896:web:608dad07aebf3710c4c9cd"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // ==========================================
+        // TOAST DE NOTIFICAÇÃO
+        // ==========================================
+        function mostrarToast(mensagem, tipo = 'sucesso') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo === 'erro' ? 'erro' : ''}`;
+            toast.innerHTML = `<strong>${tipo === 'erro' ? 'ERRO' : 'OK'}</strong> &mdash; ${mensagem}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3500);
+        }
+
+        // Abre o calendário ao clicar em qualquer lugar no campo data
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataReal = document.getElementById('data-real');
+            if (dataReal) {
+                dataReal.addEventListener('click', function() {
+                    if (typeof this.showPicker === 'function') {
+                        this.showPicker();
+                    }
+                });
+            }
+        });
+
+        // Referências dos Elementos
+        const secaoLogin = document.getElementById('secao-login');
+        const secaoPainel = document.getElementById('secao-painel');
+        const formLogin = document.getElementById('form-login');
+        const btnEntrar = document.getElementById('btn-entrar');
+        const btnLogout = document.getElementById('btn-logout');
+        
+        const formAdmin = document.getElementById('form-admin');
+        const listaAdmin = document.getElementById('lista-admin');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnCancelar = document.getElementById('btn-cancelar');
+        const tituloForm = document.getElementById('titulo-form');
+
+        let idEventoSendoEditado = null; 
+
+        // ==========================================
+        // SEGURANÇA: VIGIA SE O USUÁRIO ESTÁ LOGADO
+        // ==========================================
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                secaoLogin.style.display = 'none';
+                secaoPainel.style.display = 'block';
+                carregarEventosAdmin();
+                carregarServicosAdmin();
+            } else {
+                secaoLogin.style.display = 'flex';
+                secaoPainel.style.display = 'none';
+            }
+        });
+
+        // ==========================================
+        // AÇÃO: FAZER LOGIN
+        // ==========================================
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btnEntrar.innerText = "VERIFICANDO...";
+
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+
+            try {
+                // Tenta logar no Firebase
+                await signInWithEmailAndPassword(auth, email, senha);
+                formLogin.reset();
+                btnEntrar.innerText = "ENTRAR NO PAINEL";
+            } catch (erro) {
+                console.error("Erro ao logar:", erro);
+                mostrarToast('E-mail ou senha incorretos!', 'erro');
+                btnEntrar.innerText = "ENTRAR NO PAINEL";
+            }
+        });
+
+        // ==========================================
+        // AÇÃO: FAZER LOGOUT (SAIR)
+        // ==========================================
+        btnLogout.addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        // ==========================================
+        // LÓGICA DO FORMULÁRIO DA AGENDA (UPLOAD E SALVAR/EDITAR)
+        // ==========================================
+        formAdmin.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            btnSubmit.innerText = "SALVANDO... AGUARDE";
+            btnSubmit.disabled = true; // Trava o botão para não clicar duas vezes
+            
+            try {
+                // 1. Verifica se tem um arquivo de imagem selecionado
+                const campoArquivo = document.getElementById('imagem-upload');
+                let linkFinalImagem = document.getElementById('imagem').value; // Pega o link do texto como padrão
+                
+                if (campoArquivo.files.length > 0) {
+                    btnSubmit.innerText = "ENVIANDO IMAGEM... (1/2)";
+                    const arquivo = campoArquivo.files[0];
+                    
+                    // Configuração do Cloudinary
+                    const cloudName = "dycwp4ds9"; // Coloque seu Cloud Name aqui
+                    const uploadPreset = "djtonbk";  // Coloque o nome do Preset aqui
+                    
+                    const formData = new FormData();
+                    formData.append('file', arquivo);
+                    formData.append('upload_preset', uploadPreset);
+                    
+                    // Faz o upload para o Cloudinary
+                    const respostaCloudinary = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const dadosCloudinary = await respostaCloudinary.json();
+                    
+                    // Se o upload deu certo, pega a URL segura que o Cloudinary gerou
+                    if (dadosCloudinary.secure_url) {
+                        linkFinalImagem = dadosCloudinary.secure_url;
+                    }
+                }
+
+                btnSubmit.innerText = "SALVANDO EVENTO... (2/2)";
+
+                // 2. Prepara os dados do evento com a imagem nova
+                const dataReal = document.getElementById('data-real').value;
+                const dataParts = dataReal.split('-');
+                const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+                const dataDisplay = `${parseInt(dataParts[2])} ${meses[parseInt(dataParts[1]) - 1]}`;
+
+                const cidade = document.getElementById('cidade').value;
+                const estado = document.getElementById('estado').value;
+
+                const dadosEvento = {
+                    titulo: document.getElementById('titulo').value,
+                    data: dataDisplay,
+                    dataReal: dataReal,
+                    categoria: document.getElementById('categoria').value || '',
+                    cidade: cidade,
+                    estado: estado,
+                    local: `${cidade}, ${estado}`,
+                    imagem: linkFinalImagem,
+                    descricao: document.getElementById('descricao').value
+                };
+
+                // 3. Salva no Firebase
+                if (idEventoSendoEditado) {
+                    await updateDoc(doc(db, "eventos", idEventoSendoEditado), dadosEvento);
+                    mostrarToast('Evento atualizado com sucesso!');
+                } else {
+                    await addDoc(collection(db, "eventos"), dadosEvento);
+                    mostrarToast('Novo evento cadastrado com sucesso!');
+                }
+
+                resetarFormulario();
+                carregarEventosAdmin();
+
+            } catch (erro) {
+                console.error("Erro ao salvar:", erro);
+                mostrarToast('Erro ao salvar o evento.', 'erro');
+                btnSubmit.innerText = "SALVAR EVENTO NO SITE";
+            } finally {
+                btnSubmit.disabled = false;
+            }
+        });
+
+
+
+        // ==========================================
+        // LÓGICA DE CANCELAR E RESETAR O FORMULÁRIO
+        // ==========================================
+        btnCancelar.addEventListener('click', function() {
+            resetarFormulario();
+        });
+
+        function resetarFormulario() {
+            formAdmin.reset(); // Limpa os textos
+            
+            // Limpa o arquivo de imagem que foi selecionado
+            const campoArquivo = document.getElementById('imagem-upload');
+            if(campoArquivo) {
+                campoArquivo.value = ''; 
+            }
+            
+            idEventoSendoEditado = null;
+            tituloForm.innerText = "Adicionar Novo Evento";
+            btnSubmit.innerText = "SALVAR EVENTO NO SITE";
+            btnCancelar.style.display = "none";
+        }
+
+
+        // ==========================================
+        // LISTAR, APAGAR E PREPARAR EDIÇÃO
+        // ==========================================
+        async function carregarEventosAdmin() {
+            try {
+                const eventosFirebase = await getDocs(collection(db, "eventos"));
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                const ativos = [];
+                const arquivados = [];
+
+                eventosFirebase.forEach((documento) => {
+                    const evento = documento.data();
+                    evento._id = documento.id;
+
+                    if (evento.dataReal) {
+                        const dataEvento = new Date(evento.dataReal + 'T00:00:00');
+                        if (dataEvento < hoje) {
+                            arquivados.push(evento);
+                        } else {
+                            ativos.push(evento);
+                        }
+                    } else {
+                        // Eventos sem dataReal vão pra ativos (legado)
+                        ativos.push(evento);
+                    }
+                });
+
+                ativos.sort((a, b) => (a.dataReal || '').localeCompare(b.dataReal || ''));
+                arquivados.sort((a, b) => (a.dataReal || '').localeCompare(b.dataReal || ''));
+
+                // --- ATIVOS ---
+                listaAdmin.innerHTML = ''; 
+
+                if (ativos.length === 0 && arquivados.length === 0) {
+                    listaAdmin.innerHTML = '<p style="color: #888;">Nenhum evento cadastrado.</p>';
+                    return;
+                }
+
+                if (ativos.length > 0) {
+                    const tituloAtivos = document.createElement('h4');
+                    tituloAtivos.style.cssText = 'color: #00cec9; margin: 20px 0 10px; font-size: 16px;';
+                    tituloAtivos.innerText = '📅 PRÓXIMOS EVENTOS';
+                    listaAdmin.appendChild(tituloAtivos);
+
+                    ativos.forEach((evento) => {
+                        const div = document.createElement('div');
+                        div.className = 'evento-linha';
+                        div.innerHTML = `
+                        <div>
+                            <strong style="color: #00cec9;">${evento.data}</strong> - ${evento.titulo}
+                        </div>
+                        <div class="botoes-acao">
+                            <button class="btn-editar" 
+                                data-id="${evento._id}"
+                                data-titulo="${evento.titulo}"
+                                data-data="${evento.data}"
+                                data-data-real="${evento.dataReal || ''}"
+                                data-categoria="${evento.categoria || ''}"
+                                data-cidade="${evento.cidade || ''}"
+                                data-estado="${evento.estado || ''}"
+                                data-local="${evento.local || ''}"
+                                data-img="${evento.imagem || ''}"
+                                data-desc="${evento.descricao}">EDITAR</button>
+                            <button class="btn-apagar" data-id="${evento._id}">APAGAR</button>
+                        </div>
+                    `;
+                        listaAdmin.appendChild(div);
+                    });
+                }
+
+                // --- ARQUIVADOS ---
+                if (arquivados.length > 0) {
+                    const tituloArq = document.createElement('h4');
+                    tituloArq.style.cssText = 'color: #666; margin: 30px 0 10px; font-size: 16px; border-top: 1px solid #333; padding-top: 20px;';
+                    tituloArq.innerText = '📦 EVENTOS ARQUIVADOS / EXPIRADOS';
+                    listaAdmin.appendChild(tituloArq);
+
+                    arquivados.forEach((evento) => {
+                        const div = document.createElement('div');
+                        div.className = 'evento-linha';
+                        div.style.opacity = '0.5';
+                        div.innerHTML = `
+                        <div>
+                            <strong style="color: #888;">${evento.data}</strong> - ${evento.titulo}
+                        </div>
+                        <div class="botoes-acao">
+                            <button class="btn-editar" 
+                                data-id="${evento._id}"
+                                data-titulo="${evento.titulo}"
+                                data-data="${evento.data}"
+                                data-data-real="${evento.dataReal || ''}"
+                                data-categoria="${evento.categoria || ''}"
+                                data-cidade="${evento.cidade || ''}"
+                                data-estado="${evento.estado || ''}"
+                                data-local="${evento.local || ''}"
+                                data-img="${evento.imagem || ''}"
+                                data-desc="${evento.descricao}">EDITAR</button>
+                            <button class="btn-apagar" data-id="${evento._id}">APAGAR</button>
+                        </div>
+                    `;
+                        listaAdmin.appendChild(div);
+                    });
+                }
+
+                // Botão Apagar
+                document.querySelectorAll('.btn-apagar').forEach(botao => {
+                    botao.addEventListener('click', async function() {
+                        if (confirm("Tem certeza que deseja apagar este evento do site?")) {
+                            await deleteDoc(doc(db, "eventos", this.getAttribute('data-id')));
+                            mostrarToast('Evento excluído com sucesso!');
+                            carregarEventosAdmin(); 
+                        }
+                    });
+                });
+
+                // Botão Editar
+                document.querySelectorAll('.btn-editar').forEach(botao => {
+                    botao.addEventListener('click', function() {
+                        idEventoSendoEditado = this.getAttribute('data-id');
+                        document.getElementById('titulo').value = this.getAttribute('data-titulo');
+                        document.getElementById('data-real').value = this.getAttribute('data-data-real');
+                        document.getElementById('categoria').value = this.getAttribute('data-categoria');
+                        document.getElementById('cidade').value = this.getAttribute('data-cidade');
+                        document.getElementById('estado').value = this.getAttribute('data-estado');
+                        document.getElementById('imagem').value = this.getAttribute('data-img');
+                        document.getElementById('descricao').value = this.getAttribute('data-desc');
+                        
+                        tituloForm.innerText = "Editando Evento";
+                        btnSubmit.innerText = "ATUALIZAR EVENTO NO SITE";
+                        btnCancelar.style.display = "block";
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+
+            } catch (erro) {
+                console.error("Erro ao puxar lista:", erro);
+            }
+        }
+
+        // ==========================================
+        // SISTEMA DE SEGURANÇA: AUTO-LOGOUT (5 MINUTOS)
+        // ==========================================
+        let tempoInativo;
+
+        function iniciarCronometro() {
+            // Limpa o cronômetro anterior (se existir)
+            clearTimeout(tempoInativo);
+            
+            // Cria um novo cronômetro de 5 minutos (300.000 milissegundos)
+            tempoInativo = setTimeout(() => {
+                // Só desloga se o usuário estiver na tela do painel (logado)
+                if (auth.currentUser) {
+                    mostrarToast('Sessão encerrada por inatividade (5 minutos).', 'erro');
+                    signOut(auth);
+                }
+            }, 300000); 
+        }
+
+        // Função que detecta movimento e zera o tempo
+        function resetarTempo() {
+            // Só reseta o tempo se a pessoa estiver logada
+            if (auth.currentUser) {
+                iniciarCronometro();
+            }
+        }
+
+        // Fica vigiando as ações do usuário na tela
+        window.addEventListener('mousemove', resetarTempo); // Mexeu o mouse
+        window.addEventListener('mousedown', resetarTempo); // Clicou
+        window.addEventListener('keypress', resetarTempo);  // Digitou no teclado
+        window.addEventListener('scroll', resetarTempo);    // Rolou a página
+
+
+        // ==========================================
+        // NAVEGAÇÃO POR ABAS (Agenda / Serviços)
+        // ==========================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
+                this.classList.add('ativo');
+                document.getElementById('tab-' + this.getAttribute('data-tab')).classList.add('ativo');
+            });
+        });
+
+        // ==========================================
+        // CRUD - SERVIÇOS
+        // ==========================================
+
+        const formServico = document.getElementById('form-servico');
+        const btnSubmitServico = document.getElementById('btn-submit-servico');
+        const btnCancelarServico = document.getElementById('btn-cancelar-servico');
+        const tituloFormServico = document.getElementById('titulo-form-servico');
+        const listaServicosAdmin = document.getElementById('lista-servicos-admin');
+
+        let idServicoSendoEditado = null;
+
+        // FORMATA PREÇO AUTOMATICAMENTE (BR: 1.500,00)
+        document.getElementById('servico-preco').addEventListener('input', function() {
+            let valor = this.value.replace(/[^\d,]/g, '');
+            const virgulaIndex = valor.indexOf(',');
+            if (virgulaIndex >= 0) {
+                const parteInteira = valor.slice(0, virgulaIndex).replace(/\D/g, '');
+                const parteDecimal = valor.slice(virgulaIndex + 1).replace(/\D/g, '').slice(0, 2);
+                const intFormatada = parteInteira.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                this.value = parteDecimal ? intFormatada + ',' + parteDecimal : intFormatada + ',';
+            } else {
+                this.value = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+        });
+
+        // SALVAR / EDITAR SERVIÇO
+        formServico.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            btnSubmitServico.innerText = "SALVANDO... AGUARDE";
+            btnSubmitServico.disabled = true;
+
+            try {
+                const campoArquivo = document.getElementById('servico-imagem-upload');
+                let linkFinalImagem = document.getElementById('servico-imagem').value;
+
+                if (campoArquivo.files.length > 0) {
+                    btnSubmitServico.innerText = "ENVIANDO IMAGEM... (1/2)";
+                    const arquivo = campoArquivo.files[0];
+                    const cloudName = "dycwp4ds9";
+                    const uploadPreset = "djtonbk";
+
+                    const formData = new FormData();
+                    formData.append('file', arquivo);
+                    formData.append('upload_preset', uploadPreset);
+
+                    const respostaCloudinary = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const dadosCloudinary = await respostaCloudinary.json();
+
+                    if (dadosCloudinary.secure_url) {
+                        linkFinalImagem = dadosCloudinary.secure_url;
+                    }
+                }
+
+                btnSubmitServico.innerText = "SALVANDO SERVIÇO... (2/2)";
+
+                const dadosServico = {
+                    nome: document.getElementById('servico-nome').value,
+                    categoria: document.getElementById('servico-categoria').value,
+                    preco: document.getElementById('servico-preco').value,
+                    imagem: linkFinalImagem,
+                    descricao: document.getElementById('servico-descricao').value
+                };
+
+                if (idServicoSendoEditado) {
+                    await updateDoc(doc(db, "servicos", idServicoSendoEditado), dadosServico);
+                    mostrarToast('Serviço atualizado com sucesso!');
+                } else {
+                    await addDoc(collection(db, "servicos"), dadosServico);
+                    mostrarToast('Novo serviço cadastrado com sucesso!');
+                }
+
+                resetarFormularioServico();
+                carregarServicosAdmin();
+
+            } catch (erro) {
+                console.error("Erro ao salvar serviço:", erro);
+                mostrarToast('Erro ao salvar o serviço.', 'erro');
+                btnSubmitServico.innerText = "SALVAR SERVIÇO NO SITE";
+            } finally {
+                btnSubmitServico.disabled = false;
+            }
+        });
+
+        // CANCELAR EDIÇÃO SERVIÇO
+        btnCancelarServico.addEventListener('click', function() {
+            resetarFormularioServico();
+        });
+
+        function resetarFormularioServico() {
+            formServico.reset();
+            const campoArquivo = document.getElementById('servico-imagem-upload');
+            if(campoArquivo) {
+                campoArquivo.value = '';
+            }
+            idServicoSendoEditado = null;
+            tituloFormServico.innerText = "Adicionar Novo Serviço";
+            btnSubmitServico.innerText = "SALVAR SERVIÇO NO SITE";
+            btnCancelarServico.style.display = "none";
+        }
+
+        // LISTAR SERVIÇOS
+        async function carregarServicosAdmin() {
+            try {
+                const servicosFirebase = await getDocs(collection(db, "servicos"));
+                listaServicosAdmin.innerHTML = '';
+
+                if (servicosFirebase.empty) {
+                    listaServicosAdmin.innerHTML = '<p style="color: #888;">Nenhum serviço cadastrado.</p>';
+                    return;
+                }
+
+                servicosFirebase.forEach((documento) => {
+                    const servico = documento.data();
+                    const idDoServico = documento.id;
+
+                    const div = document.createElement('div');
+                    div.className = 'evento-linha';
+                    div.innerHTML = `
+                        <div>
+                            <strong style="color: #00cec9;">${servico.nome}</strong>
+                            ${servico.categoria ? `<span style="color: #888; font-size: 12px; display: block;">${servico.categoria}${servico.preco ? ' - A partir de R$ ' + servico.preco : ''}</span>` : ''}
+                        </div>
+                        <div class="botoes-acao">
+                            <button class="btn-editar"
+                                data-id="${idDoServico}"
+                                data-nome="${servico.nome}"
+                                data-categoria="${servico.categoria || ''}"
+                                data-preco="${servico.preco || ''}"
+                                data-img="${servico.imagem || ''}"
+                                data-desc="${servico.descricao}">EDITAR</button>
+                            <button class="btn-apagar" data-id="${idDoServico}">APAGAR</button>
+                        </div>
+                    `;
+                    listaServicosAdmin.appendChild(div);
+                });
+
+                // APAGAR SERVIÇO
+                document.querySelectorAll('#lista-servicos-admin .btn-apagar').forEach(botao => {
+                    botao.addEventListener('click', async function() {
+                        if (confirm("Tem certeza que deseja apagar este serviço do site?")) {
+                            await deleteDoc(doc(db, "servicos", this.getAttribute('data-id')));
+                            mostrarToast('Serviço excluído com sucesso!');
+                            carregarServicosAdmin();
+                        }
+                    });
+                });
+
+                // EDITAR SERVIÇO
+                document.querySelectorAll('#lista-servicos-admin .btn-editar').forEach(botao => {
+                    botao.addEventListener('click', function() {
+                        idServicoSendoEditado = this.getAttribute('data-id');
+                        document.getElementById('servico-nome').value = this.getAttribute('data-nome');
+                        document.getElementById('servico-categoria').value = this.getAttribute('data-categoria');
+                        document.getElementById('servico-preco').value = (this.getAttribute('data-preco') || '').replace('A partir de R$ ', '');
+                        document.getElementById('servico-imagem').value = this.getAttribute('data-img');
+                        document.getElementById('servico-descricao').value = this.getAttribute('data-desc');
+
+                        tituloFormServico.innerText = "Editando Serviço";
+                        btnSubmitServico.innerText = "ATUALIZAR SERVIÇO NO SITE";
+                        btnCancelarServico.style.display = "block";
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+
+            } catch (erro) {
+                console.error("Erro ao puxar serviços:", erro);
+            }
+        }
+
+
+    </script>
+</body>
+</html>
