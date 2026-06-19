@@ -484,7 +484,7 @@
                 listaEventos.innerHTML = '';
                 
                 if (eventosFirebase.empty) {
-                    listaEventos.innerHTML = '<p style="color: #888; text-align: center; width: 100%;">Nenhum evento programado no momento.</p>';
+                    listaEventos.innerHTML = '<div class="agenda-empty"><div class="agenda-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p class="agenda-empty-text">Nenhum evento programado no momento</p><span class="agenda-empty-sub">Fique de olho, em breve novidades</span></div>';
                     return;
                 }
 
@@ -509,7 +509,7 @@
                 eventosValidos.sort((a, b) => (a.dataReal || '').localeCompare(b.dataReal || ''));
 
                 if (eventosValidos.length === 0) {
-                    listaEventos.innerHTML = '<p style="color: #888; text-align: center; width: 100%;">Nenhum evento programado no momento.</p>';
+                    listaEventos.innerHTML = '<div class="agenda-empty"><div class="agenda-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p class="agenda-empty-text">Nenhum evento programado no momento</p><span class="agenda-empty-sub">Fique de olho, em breve novidades</span></div>';
                     return;
                 }
 
