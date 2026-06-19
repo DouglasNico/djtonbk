@@ -513,6 +513,8 @@
                     return;
                 }
 
+                const imagensPreload = new Set();
+
                 eventosValidos.forEach((evento) => {
                     const dia = evento.dataReal ? String(new Date(evento.dataReal + 'T12:00:00').getDate()).padStart(2, '0') : '';
                     const mes = evento.dataReal ? new Date(evento.dataReal + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
@@ -528,6 +530,10 @@
                     }
 
                     const localExibicao = evento.cidade ? `${evento.cidade}, ${evento.estado}` : (evento.local || '');
+
+                    if (evento.imagem && evento.imagem !== 'undefined') {
+                        imagensPreload.add(evento.imagem);
+                    }
 
                     const htmlDoEvento = `
                     <div class="agenda-item">
@@ -557,6 +563,11 @@
                     `;
                     
                     listaEventos.innerHTML += htmlDoEvento;
+                });
+
+                imagensPreload.forEach((url) => {
+                    const img = new Image();
+                    img.src = url;
                 });
 
                 ativarBotoesModal();
