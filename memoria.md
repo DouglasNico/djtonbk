@@ -10,9 +10,9 @@
 ## Estrutura de Arquivos
 ```
 /
-├── index.html          → Site principal (~723 linhas)
+├── index.html          → Site principal (~1050 linhas)
 ├── admin.html          → Painel administrativo
-├── css/style.css       → Todos os estilos (~2228 linhas)
+├── css/style.css       → Todos os estilos (~2740 linhas)
 ├── js/script.js        → Scroll reveal, navbar, hamburger, partículas, equalizer (~250 linhas)
 ├── img/                → Imagens (logo, capa-video.jpg)
 ├── favicon.svg
@@ -52,7 +52,7 @@
 - Gradiente overlay animado (`heroOverlayShift`)
 - Equalizer bars: 40 barras (20 mobile) com alturas aleatórias (0.8–2.3s)
 - Feixes de luz: dois gradientes diagonais varrendo o fundo em 14s
-- Partículas flutuantes cyan (`particleRise`)
+- Partículas flutuantes cyan **apenas no hero** (`.site-particles` movido para dentro do `<header>`)
 - Badge "DJ / PRODUTOR"
 - Título "TON B.K" com:
   - Fonte Orbitron (Google Fonts)
@@ -62,8 +62,8 @@
 - 2 CTAs (VER PACOTES / FALE COMIGO)
 - Stats: 10+ ANOS · 500+ EVENTOS · 100% SATISFAÇÃO (com linha divisória sutil)
 
-#### Partículas Flutuantes (Site Inteiro)
-- `.site-particles` fixo na viewport, `z-index: 2`
+#### Partículas Flutuantes
+- `.site-particles` absoluto dentro do hero, `z-index: 2`, `overflow: hidden`
 - 45 partículas em desktop, 25 em mobile
 - Bolinhas cyan com gradiente radial, sobem do bottom ao topo
 - Início rápido (delay máximo 3s) e durações variadas (6-16s)
@@ -75,24 +75,33 @@
 - Fecha com X, clique fora ou ESC
 - Responsivo mobile
 
-#### Serviços (Firestore)
+#### Serviços (Firestore) — Tempo Real
 - Grid responsivo de cards
 - Card com: imagem, badge categoria, nome, preço, features
 - Features parseadas de linhas com "- " na descrição
 - Modal com header gradiente + fundo escuro
 - Preço formatado como moeda BR
 - Ordenados por preço (mais barato primeiro)
+- **Dados em tempo real via `onSnapshot`** — alterações no Firestore refletem automaticamente
 
-#### Agenda (Firestore)
+#### Agenda (Firestore) — Tempo Real
 - Cards com mini-calendário (dia + mês)
 - Badge de categoria
-- Contagem regressiva: HOJE / AMANHÃ / FALTAM X DIAS
+- Contagem regressiva: HOJE / AMANHÃ / FALTAM X DIAS alinhada com o botão "Ver Detalhes"
 - Eventos passados somem do site
 - Ordenados por data crescente
 - Modal premium: flyer com glow, fundo blur, status tag, zoom na imagem
+- **Dados em tempo real via `onSnapshot`**
+
+#### Galeria (Firestore) — Tempo Real
+- Grid de cards com overlay mostrando título, data/local e **contagem de fotos**
+- Lightbox com navegação por setas, teclado (← →) e **swipe touch**
+- VER MAIS modal com **preload de imagens** (promise all)
+- Lightbox aberta do VER MAIS: ao fechar (X, ESC, clique fora), **retorna ao modal**
+- **Dados em tempo real via `onSnapshot`**
 
 #### Seção Sobre
-- Layout flex: imagem + glass card de texto
+- Layout flex com `align-items: stretch` para altura igual entre imagem e texto
 - Imagem com moldura decorativa (`::before` borda cyan) que anima no hover
 - Glow cyan atrás da imagem (`::after` radial-gradient)
 - Hover só ativa no pixel da foto (`pointer-events: none` na div, `auto` na img)
@@ -107,12 +116,16 @@
 - Logo + links + direitos reservados
 
 #### Cache Busting
-- CSS link usa query string `?v=N` (ex: `style.css?v=13`)
+- CSS link usa query string `?v=N` (ex: `style.css?v=16`)
 
 #### Scrollbar Customizada
 - WebKit: thumb #00cec9, hover #00e6e0, track #111, 8px
 - Firefox: `scrollbar-width: thin`
 - Mobile: scrollbar visível
+
+#### Back-to-top
+- Botão fixo no canto inferior direito
+- Menu "Inicio" e logo também rolam suavemente ao topo (via `scrollIntoView`)
 
 ---
 
@@ -145,6 +158,11 @@
 - Campos: nome, categoria, preço, imagem, descrição
 - Preço com formatação BR automática
 - Upload via Cloudinary
+
+#### CRUD Galeria
+- Campos: título, data, cidade, estado, capa, fotos (array)
+- Upload de múltiplas imagens via Cloudinary
+- Preview das fotos antes de salvar
 
 #### Toasts
 - Criar / atualizar / excluir / erro
@@ -179,12 +197,26 @@
 }
 ```
 
+#### Coleção `galeria`
+```js
+{
+  titulo: "String",
+  data: "2026-06-15",
+  cidade: "Campinas",
+  estado: "SP",
+  capa: "https://...",
+  fotos: [
+    { url: "https://...", publicId: "..." },
+    ...
+  ]
+}
+```
+
 ---
 
 ### Próximos Passos Possíveis
 - Encontrar imagem de background DJ ideal (Unsplash/Pexels)
 - Integrar formulário de contato com e-mail real
-- Adicionar galeria de fotos/vídeos
 - Sistema de depoimentos/clientes
 - Blog ou página de setlists
 - Integração com redes sociais

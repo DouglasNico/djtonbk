@@ -31,7 +31,7 @@
     
     <!-- SUBSTITUA O LINK ABAIXO PELO LINK DA SUA IMAGEM DE CAPA -->
     <meta property="og:image" content="https://djtonbk-cd74a.web.app/img/capa-whatsapp.jpg">
-    <link rel="stylesheet" href="./css/style.css?v=24">
+    <link rel="stylesheet" href="./css/style.css?v=25">
     <!-- JSON-LD: Artista -->
     <script type="application/ld+json" id="jsonld-artista">
     {
@@ -60,7 +60,6 @@
     </script>
 </head>
 <body>
-    <div class="site-particles"></div>
     <nav class="navbar">
         <div class="scroll-progress"></div>
         <div class="nav-container">
@@ -114,6 +113,7 @@
                 </div>
             </div>
         </div>
+        <div class="site-particles"></div>
     </header>
 
  <section id="servicos" class="services-section">
@@ -379,7 +379,7 @@
 <script type="module">
         // Importa as funções principais do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // ==========================================
         // AQUI VAI A SUA "CHAVE DA PORTA" DO FIREBASE
@@ -432,47 +432,48 @@
             `;
         }
 
-        async function carregarServicos() {
+        let unsubServicos = null;
+
+        function carregarServicos() {
             const listaServicos = document.getElementById('lista-de-servicos');
             
             try {
-                const servicosFirebase = await getDocs(collection(db, "servicos"));
-                
-                listaServicos.innerHTML = '';
-                
-                if (servicosFirebase.empty) {
-                    const fallback = [
-                        { nome: "Pacote Essencial", categoria: "BASIC", preco: "1.500", imagem: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=500&q=60", descricao: "O pacote ideal para eventos intimistas.\n- DJ profissional com repertório personalizado\n- Caixa de som amplificada JBL\n- Mesa de som 4 canais\n- 4 horas de evento\n- Playlist personalizada" },
-                        { nome: "Pacote Premium", categoria: "MAIS POPULAR", preco: "3.000", imagem: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=500&q=60", descricao: "Experiência completa para médio porte.\n- DJ profissional + equipamento completo\n- Sistema de som JBL profissional\n- Iluminação LED RGB\n- 6 horas de evento\n- Playlist personalizada\n- Microfone sem fio" },
-                        { nome: "Pacote Master", categoria: "PREMIUM", preco: "5.500", imagem: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=500&q=60", descricao: "A experiência definitiva para grandes eventos.\n- DJ profissional + equipamento top de linha\n- Sistema de som JBL line array\n- Iluminação cênica completa\n- Máquina de fumaça + efeitos\n- 8 horas de evento\n- Playlist personalizada\n- Microfone sem fio\n- Técnico de som dedicado" }
-                    ];
+                unsubServicos = onSnapshot(collection(db, "servicos"), (snap) => {
+                    listaServicos.innerHTML = '';
 
-                    fallback.forEach((s, i) => {
-                        listaServicos.innerHTML += gerarCardServico(s, i > 0 ? ` reveal-delay-${Math.min(i, 4)}` : '');
+                    if (snap.empty) {
+                        const fallback = [
+                            { nome: "Pacote Essencial", categoria: "BASIC", preco: "1.500", imagem: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=500&q=60", descricao: "O pacote ideal para eventos intimistas.\n- DJ profissional com repertório personalizado\n- Caixa de som amplificada JBL\n- Mesa de som 4 canais\n- 4 horas de evento\n- Playlist personalizada" },
+                            { nome: "Pacote Premium", categoria: "MAIS POPULAR", preco: "3.000", imagem: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=500&q=60", descricao: "Experiência completa para médio porte.\n- DJ profissional + equipamento completo\n- Sistema de som JBL profissional\n- Iluminação LED RGB\n- 6 horas de evento\n- Playlist personalizada\n- Microfone sem fio" },
+                            { nome: "Pacote Master", categoria: "PREMIUM", preco: "5.500", imagem: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=500&q=60", descricao: "A experiência definitiva para grandes eventos.\n- DJ profissional + equipamento top de linha\n- Sistema de som JBL line array\n- Iluminação cênica completa\n- Máquina de fumaça + efeitos\n- 8 horas de evento\n- Playlist personalizada\n- Microfone sem fio\n- Técnico de som dedicado" }
+                        ];
+
+                        fallback.forEach((s, i) => {
+                            listaServicos.innerHTML += gerarCardServico(s, i > 0 ? ` reveal-delay-${Math.min(i, 4)}` : '');
+                        });
+                        ativarBotoesPacote();
+                        return;
+                    }
+
+                    const servicosArray = [];
+                    snap.forEach((doc) => {
+                        servicosArray.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    servicosArray.sort((a, b) => {
+                        const valA = parseFloat((a.preco || '0').replace(/\./g, '').replace(',', '.'));
+                        const valB = parseFloat((b.preco || '0').replace(/\./g, '').replace(',', '.'));
+                        return valA - valB;
+                    });
+
+                    let delayIndex = 0;
+                    servicosArray.forEach((servico) => {
+                        const delayClass = delayIndex > 0 ? ` reveal-delay-${Math.min(delayIndex, 4)}` : '';
+                        listaServicos.innerHTML += gerarCardServico(servico, delayClass);
+                        delayIndex++;
                     });
                     ativarBotoesPacote();
-                    return;
-                }
-
-                const servicosArray = [];
-                servicosFirebase.forEach((doc) => {
-                    servicosArray.push({ id: doc.id, ...doc.data() });
                 });
-
-                servicosArray.sort((a, b) => {
-                    const valA = parseFloat((a.preco || '0').replace(/\./g, '').replace(',', '.'));
-                    const valB = parseFloat((b.preco || '0').replace(/\./g, '').replace(',', '.'));
-                    return valA - valB;
-                });
-
-                let delayIndex = 0;
-                servicosArray.forEach((servico) => {
-                    const delayClass = delayIndex > 0 ? ` reveal-delay-${Math.min(delayIndex, 4)}` : '';
-                    listaServicos.innerHTML += gerarCardServico(servico, delayClass);
-                    delayIndex++;
-                });
-                ativarBotoesPacote();
-
             } catch (erro) {
                 console.error("Erro ao puxar serviços:", erro);
                 listaServicos.innerHTML = '<p style="color: red; text-align: center; width: 100%;">Erro ao carregar pacotes.</p>';
@@ -547,106 +548,107 @@
         // PUXANDO EVENTOS DO FIREBASE E ALIMENTANDO O MODAL
         // ==========================================
 
-        async function carregarAgenda() {
+        let unsubAgenda = null;
+
+        function carregarAgenda() {
             const listaEventos = document.getElementById('lista-de-eventos');
             
             try {
-                const eventosFirebase = await getDocs(collection(db, "eventos"));
-                
-                listaEventos.innerHTML = '';
-                
-                if (eventosFirebase.empty) {
-                    listaEventos.innerHTML = '<div class="agenda-empty"><div class="agenda-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p class="agenda-empty-text">Nenhum evento programado no momento</p><span class="agenda-empty-sub">Fique de olho, em breve novidades</span></div>';
-                    return;
-                }
+                unsubAgenda = onSnapshot(collection(db, "eventos"), (snap) => {
+                    listaEventos.innerHTML = '';
 
-                const hoje = new Date();
-                hoje.setHours(0, 0, 0, 0);
-                const eventosValidos = [];
+                    if (snap.empty) {
+                        listaEventos.innerHTML = '<div class="agenda-empty"><div class="agenda-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p class="agenda-empty-text">Nenhum evento programado no momento</p><span class="agenda-empty-sub">Fique de olho, em breve novidades</span></div>';
+                        return;
+                    }
 
-                eventosFirebase.forEach((doc) => {
-                    const evento = doc.data();
-                    evento._id = doc.id;
-                    
-                    if (evento.dataReal) {
-                        const dataEvento = new Date(evento.dataReal + 'T00:00:00');
-                        if (dataEvento >= hoje) {
+                    const hoje = new Date();
+                    hoje.setHours(0, 0, 0, 0);
+                    const eventosValidos = [];
+
+                    snap.forEach((doc) => {
+                        const evento = doc.data();
+                        evento._id = doc.id;
+                        
+                        if (evento.dataReal) {
+                            const dataEvento = new Date(evento.dataReal + 'T00:00:00');
+                            if (dataEvento >= hoje) {
+                                eventosValidos.push(evento);
+                            }
+                        } else {
                             eventosValidos.push(evento);
                         }
-                    } else {
-                        eventosValidos.push(evento);
-                    }
-                });
+                    });
 
-                eventosValidos.sort((a, b) => (a.dataReal || '').localeCompare(b.dataReal || ''));
+                    eventosValidos.sort((a, b) => (a.dataReal || '').localeCompare(b.dataReal || ''));
 
-                if (eventosValidos.length === 0) {
-                    listaEventos.innerHTML = '<div class="agenda-empty"><div class="agenda-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p class="agenda-empty-text">Nenhum evento programado no momento</p><span class="agenda-empty-sub">Fique de olho, em breve novidades</span></div>';
-                    return;
-                }
-
-                const imagensPreload = new Set();
-
-                eventosValidos.forEach((evento) => {
-                    const dia = evento.dataReal ? String(new Date(evento.dataReal + 'T12:00:00').getDate()).padStart(2, '0') : '';
-                    const mes = evento.dataReal ? new Date(evento.dataReal + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
-                    
-                    let diasRestantes = '';
-                    let urgenteClass = '';
-                    if (evento.dataReal) {
-                        const hoje = new Date();
-                        hoje.setHours(0, 0, 0, 0);
-                        const diff = Math.round((new Date(evento.dataReal + 'T00:00:00') - hoje) / (1000 * 60 * 60 * 24));
-                        if (diff === 0) diasRestantes = 'HOJE';
-                        else if (diff === 1) diasRestantes = 'AMANHÃ';
-                        else if (diff > 0) diasRestantes = `FALTAM ${diff} DIAS`;
-                        if (diff >= 0 && diff <= 7) urgenteClass = 'urgente';
+                    if (eventosValidos.length === 0) {
+                        listaEventos.innerHTML = '<div class="agenda-empty"><div class="agenda-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p class="agenda-empty-text">Nenhum evento programado no momento</p><span class="agenda-empty-sub">Fique de olho, em breve novidades</span></div>';
+                        return;
                     }
 
-                    const localExibicao = evento.cidade ? `${evento.cidade}, ${evento.estado}` : (evento.local || '');
+                    const imagensPreload = new Set();
 
-                    if (evento.imagem && evento.imagem !== 'undefined') {
-                        imagensPreload.add(evento.imagem);
-                    }
-
-                    const htmlDoEvento = `
-                    <div class="agenda-item">
-                        <div class="agenda-calendario">
-                            <span class="agenda-dia">${dia}</span>
-                            <span class="agenda-mes">${mes}</span>
-                        </div>
+                    eventosValidos.forEach((evento) => {
+                        const dia = evento.dataReal ? String(new Date(evento.dataReal + 'T12:00:00').getDate()).padStart(2, '0') : '';
+                        const mes = evento.dataReal ? new Date(evento.dataReal + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
                         
-                        <div class="agenda-info">
-                            ${evento.categoria ? `<span class="agenda-badge">${evento.categoria}</span>` : ''}
-                            <h3 class="agenda-titulo">${evento.titulo}</h3>
-                            <p class="agenda-local">${localExibicao}</p>
+                        let diasRestantes = '';
+                        let urgenteClass = '';
+                        if (evento.dataReal) {
+                            const hoje = new Date();
+                            hoje.setHours(0, 0, 0, 0);
+                            const diff = Math.round((new Date(evento.dataReal + 'T00:00:00') - hoje) / (1000 * 60 * 60 * 24));
+                            if (diff === 0) diasRestantes = 'HOJE';
+                            else if (diff === 1) diasRestantes = 'AMANHÃ';
+                            else if (diff > 0) diasRestantes = `FALTAM ${diff} DIAS`;
+                            if (diff >= 0 && diff <= 7) urgenteClass = 'urgente';
+                        }
+
+                        const localExibicao = evento.cidade ? `${evento.cidade}, ${evento.estado}` : (evento.local || '');
+
+                        if (evento.imagem && evento.imagem !== 'undefined') {
+                            imagensPreload.add(evento.imagem);
+                        }
+
+                        const htmlDoEvento = `
+                        <div class="agenda-item">
+                            <div class="agenda-calendario">
+                                <span class="agenda-dia">${dia}</span>
+                                <span class="agenda-mes">${mes}</span>
+                            </div>
+                            
+                            <div class="agenda-info">
+                                ${evento.categoria ? `<span class="agenda-badge">${evento.categoria}</span>` : ''}
+                                <h3 class="agenda-titulo">${evento.titulo}</h3>
+                                <p class="agenda-local">${localExibicao}</p>
+                            </div>
+                            
+                            <div class="agenda-extra">
+                                ${diasRestantes ? `<span class="agenda-contagem ${urgenteClass}">${diasRestantes}</span>` : ''}
+                                <a href="#" class="btn btn-detalhes" 
+                                   data-titulo="${evento.titulo}"
+                                   data-data="${evento.data}"
+                                   data-local="${localExibicao}"
+                                   data-desc="${evento.descricao}"
+                                   data-categoria="${evento.categoria || ''}"
+                                   data-real="${evento.dataReal || ''}"
+                                   data-img="${evento.imagem || ''}">Ver Detalhes</a>
+                            </div>
                         </div>
+                        `;
                         
-                        <div class="agenda-extra">
-                            ${diasRestantes ? `<span class="agenda-contagem ${urgenteClass}">${diasRestantes}</span>` : ''}
-                            <a href="#" class="btn btn-detalhes" 
-                               data-titulo="${evento.titulo}"
-                               data-data="${evento.data}"
-                               data-local="${localExibicao}"
-                               data-desc="${evento.descricao}"
-                               data-categoria="${evento.categoria || ''}"
-                               data-real="${evento.dataReal || ''}"
-                               data-img="${evento.imagem || ''}">Ver Detalhes</a>
-                        </div>
-                    </div>
-                    `;
-                    
-                    listaEventos.innerHTML += htmlDoEvento;
+                        listaEventos.innerHTML += htmlDoEvento;
+                    });
+
+                    imagensPreload.forEach((url) => {
+                        const img = new Image();
+                        img.src = url;
+                    });
+
+                    ativarBotoesModal();
+                    atualizarJsonLdEventos(eventosValidos);
                 });
-
-                imagensPreload.forEach((url) => {
-                    const img = new Image();
-                    img.src = url;
-                });
-
-                ativarBotoesModal();
-                atualizarJsonLdEventos(eventosValidos);
-
             } catch (erro) {
                 console.error("Erro ao puxar agenda:", erro);
                 listaEventos.innerHTML = '<p style="color: red; text-align: center; width: 100%;">Erro ao carregar a agenda.</p>';
@@ -841,59 +843,62 @@
 
         let galeriaEventos = [];
 
-        async function carregarGaleria() {
+        let unsubGaleria = null;
+
+        function carregarGaleria() {
             try {
-                const snap = await getDocs(collection(db, "galeria"));
+                unsubGaleria = onSnapshot(collection(db, "galeria"), (snap) => {
+                    galeriaEventos = [];
+                    snap.forEach(doc => {
+                        galeriaEventos.push({ id: doc.id, ...doc.data() });
+                    });
 
-                galeriaEventos = [];
-                snap.forEach(doc => {
-                    galeriaEventos.push({ id: doc.id, ...doc.data() });
+                    // Ordenar por data (mais recente primeiro)
+                    galeriaEventos.sort((a, b) => {
+                        if (a.data < b.data) return 1;
+                        if (a.data > b.data) return -1;
+                        return 0;
+                    });
+
+                    // Remover skeletons
+                    galeriaGrid.querySelectorAll('.skeleton-galeria-item').forEach(el => el.remove());
+
+                    galeriaGrid.innerHTML = '';
+
+                    if (galeriaEventos.length === 0) {
+                        galeriaGrid.innerHTML = '<p style="color:#888;grid-column:1/-1;text-align:center;">Nenhum evento cadastrado.</p>';
+                        return;
+                    }
+
+                    // Mostrar até 3 eventos
+                    const mostrar = galeriaEventos.slice(0, 3);
+
+                    mostrar.forEach((evento, idx) => {
+                        const card = document.createElement('div');
+                        card.className = 'galeria-item';
+                        card.style.cursor = 'pointer';
+                        const localStr = evento.cidade ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade) : (evento.local || '');
+                        const qtdFotos = Array.isArray(evento.fotos) ? evento.fotos.length : 0;
+                        card.innerHTML = `
+                            <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy">
+                            <div class="galeria-overlay">
+                                <span>${evento.titulo || 'Evento'}</span>
+                                <small>${formatarData(evento.data)}${localStr ? ' · ' + localStr : ''}</small>
+                                <span class="galeria-fotos-count">${qtdFotos} ${qtdFotos === 1 ? 'foto' : 'fotos'}</span>
+                                <span class="ampliar-btn">Ampliar</span>
+                            </div>
+                        `;
+                        card.addEventListener('click', () => abrirGaleria(idx, mostrar));
+                        galeriaGrid.appendChild(card);
+                    });
+
+                    // VER MAIS se houver mais de 3
+                    if (galeriaEventos.length > 3) {
+                        btnVerMaisGaleria.style.display = 'inline-block';
+                    } else {
+                        btnVerMaisGaleria.style.display = 'none';
+                    }
                 });
-
-                // Ordenar por data (mais recente primeiro)
-                galeriaEventos.sort((a, b) => {
-                    if (a.data < b.data) return 1;
-                    if (a.data > b.data) return -1;
-                    return 0;
-                });
-
-                // Remover skeletons
-                galeriaGrid.querySelectorAll('.skeleton-galeria-item').forEach(el => el.remove());
-
-                galeriaGrid.innerHTML = '';
-
-                if (galeriaEventos.length === 0) {
-                    galeriaGrid.innerHTML = '<p style="color:#888;grid-column:1/-1;text-align:center;">Nenhum evento cadastrado.</p>';
-                    return;
-                }
-
-                // Mostrar até 3 eventos
-                const mostrar = galeriaEventos.slice(0, 3);
-
-                mostrar.forEach((evento, idx) => {
-                    const card = document.createElement('div');
-                    card.className = 'galeria-item';
-                    card.style.cursor = 'pointer';
-                    const localStr = evento.cidade ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade) : (evento.local || '');
-                    card.innerHTML = `
-                        <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy">
-                        <div class="galeria-overlay">
-                            <span>${evento.titulo || 'Evento'}</span>
-                            <small>${formatarData(evento.data)}${localStr ? ' · ' + localStr : ''}</small>
-                            <span class="ampliar-btn">Ampliar</span>
-                        </div>
-                    `;
-                    card.addEventListener('click', () => abrirGaleria(idx, mostrar));
-                    galeriaGrid.appendChild(card);
-                });
-
-                // VER MAIS se houver mais de 3
-                if (galeriaEventos.length > 3) {
-                    btnVerMaisGaleria.style.display = 'inline-block';
-                } else {
-                    btnVerMaisGaleria.style.display = 'none';
-                }
-
             } catch (erro) {
                 console.error("Erro ao carregar galeria:", erro);
                 galeriaGrid.innerHTML = '<p style="color:#888;text-align:center;">Erro ao carregar galeria.</p>';
@@ -906,19 +911,25 @@
         let galeriaFotosAtuais = [];
         let galeriaIndex = 0;
 
-        function abrirGaleria(index, eventos = galeriaEventos) {
+        function abrirGaleria(index, eventos = galeriaEventos, sourceModal = false) {
             const evento = eventos[index];
             if (!evento || !Array.isArray(evento.fotos) || evento.fotos.length === 0) return;
             galeriaFotosAtuais = evento.fotos;
             galeriaIndex = 0;
             galeriaImg.src = evento.fotos[0].url;
             galeriaLightbox.classList.add('ativo');
+            galeriaLightbox.dataset.sourceModal = sourceModal ? 'true' : '';
             document.body.style.overflow = 'hidden';
         }
 
         function fecharGaleria() {
             galeriaLightbox.classList.remove('ativo');
             document.body.style.overflow = '';
+            if (galeriaLightbox.dataset.sourceModal === 'true') {
+                galeriaLightbox.dataset.sourceModal = '';
+                modalGaleria.classList.add('ativo');
+                document.body.style.overflow = 'hidden';
+            }
         }
 
         function navegarGaleria(dir) {
@@ -941,11 +952,40 @@
             if (e.key === 'ArrowRight') navegarGaleria(1);
         });
 
+        // Touch / swipe para lightbox
+        let touchStartX = 0;
+        let touchEndX = 0;
+        galeriaLightbox.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        galeriaLightbox.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) navegarGaleria(1);
+                else navegarGaleria(-1);
+            }
+        }, { passive: true });
+
         // ==========================================
         // GALERIA – VER MAIS MODAL
         // ==========================================
         btnVerMaisGaleria.addEventListener('click', function() {
             galeriaModalLista.innerHTML = '';
+
+            // Preload todas as imagens
+            const promises = [];
+            galeriaEventos.forEach(evento => {
+                if (Array.isArray(evento.fotos)) {
+                    evento.fotos.forEach(f => {
+                        if (f.url) {
+                            const p = new Promise(res => { const img = new Image(); img.onload = img.onerror = res; img.src = f.url; });
+                            promises.push(p);
+                        }
+                    });
+                }
+            });
+            Promise.allSettled(promises).then(() => {});
 
             galeriaEventos.forEach((evento, idx) => {
                 const localStr = evento.cidade ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade) : (evento.local || '');
@@ -964,7 +1004,7 @@
                 card.addEventListener('click', () => {
                     modalGaleria.classList.remove('ativo');
                     document.body.style.overflow = '';
-                    abrirGaleria(idx, galeriaEventos);
+                    abrirGaleria(idx, galeriaEventos, true);
                 });
                 galeriaModalLista.appendChild(card);
             });
@@ -993,7 +1033,11 @@
         // ==========================================
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                const modais = ['modal-evento', 'modal-servico', 'modal-presskit', 'zoom-overlay', 'galeria-lightbox', 'modal-galeria'];
+                if (galeriaLightbox.classList.contains('ativo')) {
+                    fecharGaleria();
+                    return;
+                }
+                const modais = ['modal-evento', 'modal-servico', 'modal-presskit', 'zoom-overlay', 'modal-galeria'];
                 modais.forEach(id => {
                     const el = document.getElementById(id);
                     if (el.classList.contains('ativo') || el.classList.contains('aberto')) {
