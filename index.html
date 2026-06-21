@@ -31,7 +31,7 @@
     
     <!-- SUBSTITUA O LINK ABAIXO PELO LINK DA SUA IMAGEM DE CAPA -->
     <meta property="og:image" content="https://djtonbk-cd74a.web.app/img/capa-whatsapp.jpg">
-    <link rel="stylesheet" href="./css/style.css?v=36">
+    <link rel="stylesheet" href="./css/style.css?v=37">
     <!-- JSON-LD: Artista -->
     <script type="application/ld+json" id="jsonld-artista">
     {
@@ -949,6 +949,7 @@
 
             galeriaLightbox.classList.add('ativo');
             galeriaLightbox.dataset.sourceModal = sourceModal ? 'true' : '';
+            atualizarBotoesGaleria();
             lockScroll();
         }
 
@@ -965,9 +966,12 @@
         function navegarGaleria(dir) {
             const total = galeriaFotosAtuais.length;
             if (total === 0) return;
-            galeriaIndex = (galeriaIndex + dir + total) % total;
+            const novoIndex = galeriaIndex + dir;
+            if (novoIndex < 0 || novoIndex >= total) return;
+            galeriaIndex = novoIndex;
             galeriaTrack.style.transform = `translateX(-${galeriaIndex * 100}%)`;
             atualizarDots();
+            atualizarBotoesGaleria();
         }
 
         function atualizarDots() {
@@ -975,6 +979,12 @@
             dots.forEach((dot, i) => {
                 dot.classList.toggle('ativo', i === galeriaIndex);
             });
+        }
+
+        function atualizarBotoesGaleria() {
+            const total = galeriaFotosAtuais.length;
+            document.getElementById('galeria-prev').classList.toggle('galeria-nav-disabled', galeriaIndex === 0);
+            document.getElementById('galeria-next').classList.toggle('galeria-nav-disabled', galeriaIndex === total - 1);
         }
 
         document.getElementById('galeria-fechar').addEventListener('click', fecharGaleria);

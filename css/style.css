@@ -1269,11 +1269,9 @@ body::before {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: #fff;
+    border: 1px solid #0a8a86;
+    background: #0a8a86;
+    color: #111;
     font-size: 22px;
     cursor: pointer;
     display: flex;
@@ -1286,7 +1284,6 @@ body::before {
 
 .modal-fechar:hover {
     background: #00cec9;
-    color: #111;
     border-color: #00cec9;
     transform: scale(1.1);
 }
@@ -1637,10 +1634,9 @@ body::before {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(8px);
-    color: #fff;
+    border: 1px solid #0a8a86;
+    background: #0a8a86;
+    color: #111;
     font-size: 28px;
     cursor: pointer;
     display: flex;
@@ -1650,6 +1646,12 @@ body::before {
     z-index: 10;
     line-height: 1;
     padding: 0;
+}
+
+.zoom-fechar:hover {
+    background: #00cec9;
+    border-color: #00cec9;
+    transform: scale(1.1);
 }
 
 .lgpd-banner {
@@ -1701,14 +1703,6 @@ body::before {
     .lgpd-banner { flex-direction: column; text-align: center; padding: 12px 16px; }
     .lgpd-banner p { font-size: 11px; }
 }
-
-.zoom-fechar:hover {
-    background: #00cec9;
-    color: #111;
-    border-color: #00cec9;
-    transform: scale(1.1);
-}
-
 
 /* =========================================
     13. GALERIA
@@ -1832,10 +1826,9 @@ body::before {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(8px);
-    color: #fff;
+    border: 1px solid #0a8a86;
+    background: #0a8a86;
+    color: #111;
     font-size: 28px;
     cursor: pointer;
     display: flex;
@@ -1847,16 +1840,21 @@ body::before {
 
 .galeria-nav:hover {
     background: #00cec9;
-    color: #111;
     border-color: #00cec9;
+    transform: translateY(-50%) scale(1.1);
 }
 
 .galeria-prev { left: 20px; }
 .galeria-next { right: 20px; }
 
+.galeria-nav-disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+
 @media (max-width: 768px) {
     .galeria-section { padding: 60px 20px; }
-    .galeria-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .galeria-grid { grid-template-columns: 1fr; gap: 10px; }
     .galeria-nav { width: 40px; height: 40px; font-size: 22px; }
     .galeria-prev { left: 10px; }
     .galeria-next { right: 10px; }
@@ -1870,8 +1868,8 @@ body::before {
     13.5 — MODAL GALERIA (VER MAIS)
     ========================================= */
 .modal-galeria-painel {
-    max-width: 1100px;
-    width: 90%;
+    max-width: 100%;
+    width: 100%;
     padding: 40px;
 }
 
@@ -2671,6 +2669,10 @@ body::before {
     .galeria-dots { bottom: 12px; gap: 8px; padding: 6px 12px; }
     .galeria-dot { width: 8px; height: 8px; }
 
+    /* GALERIA */
+    .galeria-grid { grid-template-columns: 1fr; gap: 10px; }
+    .galeria-section { padding: 60px 20px; }
+
     /* WHATSAPP */
     .whatsapp-flutuante { width: 50px; height: 50px; bottom: 20px; right: 20px; }
     .whatsapp-flutuante svg { width: 28px; height: 28px; }
@@ -2968,7 +2970,10 @@ body.no-scroll {
 @media (max-width: 768px) {
     .modal-galeria-painel {
         padding: 24px 16px;
-        width: 95%;
+        width: 100%;
+    }
+    #modal-galeria.modal-overlay {
+        padding: 0;
     }
     .modal-galeria-grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

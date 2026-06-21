@@ -97,14 +97,17 @@
 
 #### Galeria (Firestore) — Tempo Real
 - Grid de cards com overlay mostrando título, data/local e **contagem de fotos**
+- **Mobile (≤768px)**: grid da galeria principal em 1 coluna (`1fr`) — itens empilhados
 - VER MAIS modal com grid responsivo de cards (`.modal-galeria-grid`)
   - Card image height reduzido em breakpoints menores (85px em 1024px/HiDPI, 160px mobile)
   - Modal compacto sem `overflow-y` (comporta-se como o backup)
+  - **Mobile (≤768px)**: modal ocupa 100% da largura (`width: 100%`, overlay sem padding)
 - Lightbox completo com:
   - Track deslizante (`translateX` com `transition: 0.35s cubic-bezier`)
   - Cada foto em `.galeria-slide` (`flex-shrink:0; width:100%`) — img centralizada com `max-width/max-height` (não estica)
   - **Slide suave** com CSS transform (não troca `src` instantaneamente)
   - Navegação por setas, teclado (← →) e **swipe touch com drag + snap**
+  - **Trava na primeira/última foto** — não faz loop (setas somem com `.galeria-nav-disabled`)
   - **Indicadores (bolinhas)** na parte inferior: mostra total de fotos e qual está ativa
   - Clique nas bolinhas navega direto para a foto
   - Clique **fora** da foto (letterbox/fundo) → fecha
@@ -151,7 +154,7 @@
 | Desktop | 1024-1400px | Layout padrão |
 | Notebook (HiDPI) | 769-1600px + ≥1.25dppx | Layout compacto para escalas 125%/150% |
 | Tablet | 768-1024px | Grid 2 colunas, hero menor |
-| Mobile | ≤768px | Hamburger, empilha tudo, padding reduzido |
+| Mobile | ≤768px | Hamburger, empilha tudo, padding reduzido, galeria 1 coluna, modal 100% largura |
 | Small | ≤480px | Fontes menores, stats compactos |
 
 ---
@@ -238,6 +241,10 @@
 | 4 | Admin sem CSS | `href="style.css"` sem pasta `css/` | Corrigido para `href="css/style.css"` |
 | 5 | Lightbox não fechava ao clicar fora após refatoração | `.galeria-slide` com `object-fit: contain` fazia img ocupar 100% do container | Clicar na slide bg (fora da img) fecha; clicar na img (`e.target.closest('img')`) não fecha |
 | 6 | Layout da galeria modal quebrado em 125%/150% (scrollbar aparecia) | `max-height: 90vh; overflow-y: auto` adicionado, mas backup não tinha | Removeu `max-height/overflow-y` e reduziu tamanho dos cards (padding, img height, título) |
+| 7 | Galeria em 2 colunas no mobile em vez de 1 | `@media (max-width: 1024px)` com `repeat(2, 1fr)` sobrescrevia o `@media (max-width: 768px)` anterior | Moveu a regra `1fr` para o segundo bloco `@media (max-width: 768px)` (após o de 1024px) |
+| 8 | Modal galeria com margens laterais no mobile | `.modal-galeria-painel` com `width: 95%` e `.modal-overlay` com `padding: 20px` | Alterou para `width: 100%` e `padding: 0` no overlay em ≤768px |
+| 9 | Botões X e setas escuros se confundiam com fundo preto | `.modal-fechar`, `.zoom-fechar`, `.galeria-nav` com `background: rgba(0,0,0,0.5)` e `color: #fff` | Mudou para sempre cyan: normal `#0a8a86`, hover `#00cec9`, com `color: #111` |
+| 10 | Lightbox navegava em loop (da última voltava pra primeira) | `(index + dir + total) % total` com módulo | Substituído por travamento nos limites + `.galeria-nav-disabled` (opacity: 0, pointer-events: none) |
 
 ## Ajustes de CSS para Notebook (125%/150%)
 
