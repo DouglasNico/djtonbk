@@ -8,6 +8,7 @@
 
 html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
 }
 
 body {
@@ -1070,11 +1071,8 @@ body::before {
     color: #ffd700;
     background: rgba(255, 215, 0, 0.1);
 }
-}
 
 .agenda-item .btn-detalhes {
-    font-size: 12px;
-    padding: 8px 18px;
     white-space: nowrap;
 }
 
@@ -1234,9 +1232,9 @@ body::before {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     z-index: 2000;
     justify-content: center;
     align-items: center;
@@ -1248,7 +1246,7 @@ body::before {
 }
 
 .modal-painel {
-    background: #08080a;
+    background: #16161e;
     border-radius: 16px;
     width: 100%;
     max-width: 520px;
@@ -1340,11 +1338,11 @@ body::before {
 
 .modal-bg-blur {
     position: absolute;
-    top: -15%; left: -15%; right: -15%; bottom: -15%;
+    top: 0; left: 0; right: 0; bottom: 0;
     background-size: cover;
     background-position: center;
-    filter: blur(30px) brightness(0.35);
-    -webkit-filter: blur(30px) brightness(0.35);
+    filter: blur(20px) brightness(0.3);
+    -webkit-filter: blur(20px) brightness(0.3);
     z-index: 0;
 }
 
@@ -1442,6 +1440,7 @@ body::before {
     padding: 4px 12px;
     border-radius: 20px;
     margin-bottom: 12px;
+    align-self: flex-start;
 }
 
 .modal-conteudo h2 {
@@ -1507,6 +1506,41 @@ body::before {
     box-shadow: 0 8px 30px rgba(0,206,201,0.35);
 }
 
+/* === Modal Evento — Foto à Esquerda === */
+#modal-evento .modal-painel {
+    display: flex;
+    flex-direction: row;
+    max-width: 900px;
+    height: 580px;
+    max-height: 90vh;
+}
+#modal-evento .modal-midia {
+    width: 48%;
+    height: 100%;
+    max-height: none;
+    flex-shrink: 0;
+    background: #000;
+}
+#modal-evento .modal-flyer {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+#modal-evento .modal-bg-blur {
+    filter: blur(25px) brightness(0.25);
+    -webkit-filter: blur(25px) brightness(0.25);
+}
+#modal-evento .modal-conteudo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+}
+#modal-evento .modal-cta {
+    margin-top: auto;
+}
+
 /* === Zoom (imagem em tela cheia) === */
 .zoom-overlay {
     display: none;
@@ -1531,13 +1565,69 @@ body::before {
     to { opacity: 1; }
 }
 
-.zoom-overlay img {
+.galeria-track-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.galeria-track {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.galeria-slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+}
+
+.galeria-slide img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
     border-radius: 6px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    user-select: none;
+    -webkit-user-drag: none;
     cursor: default;
+}
+
+.galeria-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+    padding: 8px 14px;
+    border-radius: 20px;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(6px);
+}
+
+.galeria-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.galeria-dot.ativo {
+    background: #00cec9;
+    transform: scale(1.3);
+    box-shadow: 0 0 8px rgba(0,206,201,0.5);
 }
 
 .zoom-fechar {
@@ -1787,12 +1877,23 @@ body::before {
 
 .modal-galeria-titulo {
     margin-bottom: 28px;
-    font-size: 24px;
-    color: #fff;
-    letter-spacing: 1px;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 3px;
     text-align: center;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    background: linear-gradient(135deg, #00cec9 0%, #fff 40%, #fff 60%, #00cec9 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: tituloGaleriaShift 4s ease-in-out infinite;
+}
+
+@keyframes tituloGaleriaShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
 }
 
 .modal-galeria-grid {
@@ -1805,8 +1906,8 @@ body::before {
     cursor: pointer;
     border-radius: 16px;
     overflow: hidden;
-    background: #1a1a2e;
-    border: 1px solid rgba(255,255,255,0.06);
+    background: #22223a;
+    border: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
 }
@@ -1842,7 +1943,7 @@ body::before {
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(to top, #1a1a2e, transparent);
+    background: linear-gradient(to top, #22223a, transparent);
     pointer-events: none;
 }
 
@@ -1851,6 +1952,7 @@ body::before {
     position: relative;
     z-index: 1;
     margin-top: -8px;
+    background: #22223a;
 }
 
 .modal-galeria-card-body strong {
@@ -1861,12 +1963,12 @@ body::before {
 }
 
 .modal-galeria-card-meta {
-    color: #888;
+    color: #bbb;
     font-size: 12px;
 }
 
 .modal-galeria-card-fotos {
-    color: #666;
+    color: #999;
     font-size: 11px;
     display: block;
     margin-top: 2px;
@@ -2334,11 +2436,65 @@ body::before {
    TABLET (768px - 1024px)
    ========================================= */
 @media (max-width: 1024px) {
-    .hero h1 { font-size: 46px; }
-    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
-    .agenda-section { padding: 80px 30px; }
-    .servicos-section { padding: 80px 30px; }
+    /* NAVBAR */
+    .navbar { padding: 10px 20px; }
+    .nav-links { gap: 20px; }
+    .nav-links a { font-size: 12px; letter-spacing: 1.5px; }
+    .logo-img { max-height: 30px; }
+
+    /* HERO */
+    .hero h1 { font-size: 42px; }
+    .hero p { font-size: 15px; }
+    .hero-badge { font-size: 10px; padding: 4px 14px; letter-spacing: 3px; }
+    .hero-actions { gap: 12px; }
+    .hero-stats { gap: 30px; }
+    .hero-stat-num { font-size: 22px; }
+    .hero-stat-label { font-size: 9px; letter-spacing: 2px; }
+
+    /* SEÇÕES */
+    .services-section { padding: 80px 30px; }
     .sobre-section { padding: 80px 30px; }
+    .agenda-section { padding: 80px 30px; }
+    section { padding: 80px 30px; }
+    .container-titulo h2 { font-size: 32px; }
+
+    /* CARDS GRID */
+    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+    /* GALERIA */
+    .galeria-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .galeria-section { padding: 80px 30px; }
+
+    /* CONTATO */
+    .contato-container { padding: 35px; }
+    .contato-form { gap: 14px; }
+    .contato-form input,
+    .contato-form select,
+    .contato-form textarea { padding: 14px 16px; font-size: 14px; }
+
+    /* WHATSAPP */
+    .whatsapp-flutuante { width: 52px; height: 52px; bottom: 25px; right: 25px; }
+
+    /* BACK TO TOP */
+    .back-to-top { width: 42px; height: 42px; font-size: 18px; bottom: 25px; left: 25px; }
+
+    /* MODAL EVENTO */
+    #modal-evento .modal-painel { height: 520px; }
+
+    /* GALERIA MODAL */
+    .modal-galeria-painel { padding: 14px; }
+    .modal-galeria-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+    .modal-galeria-titulo { font-size: 20px; margin-bottom: 12px; padding-bottom: 10px; }
+    .modal-galeria-card-img { height: 85px; }
+
+    /* MODAL PRESS KIT */
+    .modal-presskit-header { padding: 30px 24px 14px; }
+    .modal-presskit-header h2 { font-size: 22px; }
+    .modal-presskit-header p { font-size: 12px; }
+    .modal-presskit-buttons { gap: 12px; }
+    .modal-presskit-btn { padding: 12px 18px; font-size: 12px; }
+    .modal-presskit-body { padding: 20px 24px; }
+    .modal-presskit-footer { padding: 16px 24px 20px; }
 }
 
 /* =========================================
@@ -2485,6 +2641,9 @@ body::before {
 
     /* MODAL EVENTOS */
     .modal-painel { max-width: 100%; margin: 0; max-height: 95vh; overflow-y: auto; }
+    #modal-evento .modal-painel { flex-direction: column; height: auto; min-height: auto; }
+    #modal-evento .modal-midia { width: 100%; min-height: 200px; max-height: 50vh; height: auto; }
+    #modal-evento .modal-conteudo { overflow-y: visible; }
     .modal-conteudo { padding: 20px 20px 24px; }
     .modal-midia { min-height: 200px; max-height: 50vh; }
     .modal-flyer { max-width: 90%; max-height: 90%; }
@@ -2509,6 +2668,8 @@ body::before {
     /* ZOOM */
     .zoom-overlay { padding: 15px; }
     .zoom-fechar { top: 12px; right: 12px; width: 38px; height: 38px; font-size: 22px; }
+    .galeria-dots { bottom: 12px; gap: 8px; padding: 6px 12px; }
+    .galeria-dot { width: 8px; height: 8px; }
 
     /* WHATSAPP */
     .whatsapp-flutuante { width: 50px; height: 50px; bottom: 20px; right: 20px; }
@@ -2531,15 +2692,53 @@ body::before {
     .hero-stats { gap: 20px; }
     .hero-stat-num { font-size: 16px; }
     .hero-stat-label { font-size: 7px; letter-spacing: 1px; }
+    .hero-actions .btn { width: 100%; max-width: 260px; }
     .container-titulo h2 { font-size: 22px; }
+
+    /* NAVBAR */
+    .nav-links { width: 260px; }
+    .nav-links a { font-size: 14px; }
+
+    /* SERVICES */
+    .card-content { padding: 14px 14px; }
+    .card-image { height: 160px; }
+    .card-content h3 { font-size: 14px; }
+    .card-preco { font-size: 16px; }
+
+    /* SOBRE */
+    .sobre-texto { padding: 24px; }
+    .sobre-texto h2 { font-size: 24px; }
+    .sobre-texto p { font-size: 13px; }
+
+    /* AGENDA */
+    .agenda-item { padding: 14px 16px; gap: 12px; }
+    .agenda-titulo { font-size: 15px; }
+    .agenda-dia { font-size: 18px; }
+    .agenda-calendario { padding: 4px 12px; gap: 4px; }
+
+    /* CONTATO */
     .contato-container { padding: 18px 12px; }
     .contato-form { gap: 12px; }
     .contato-form input,
     .contato-form select,
     .contato-form textarea { padding: 12px 12px; }
-    .modal-midia { min-height: 180px; max-height: 45vh; }
+
+    /* WHATSAPP */
+    .whatsapp-flutuante { width: 44px; height: 44px; bottom: 16px; right: 16px; }
+    .whatsapp-flutuante svg { width: 22px; height: 22px; }
+
+    /* MODAL EVENTO */
+    .modal-conteudo { padding: 16px; }
+    .modal-conteudo h2 { font-size: 16px; }
+    .modal-desc { font-size: 13px; }
+
+    /* MODAL SERVIÇO */
     .modal-servico-header { padding: 18px; }
     .modal-servico-corpo { padding: 18px; }
+    .modal-servico-header-info h2 { font-size: 17px; }
+    .modal-servico-itens li { font-size: 11px; }
+
+    /* MODAL PRESS KIT */
     .modal-presskit-header { padding: 24px 16px 14px; }
     .modal-presskit-header h2 { font-size: 20px; }
     .modal-presskit-icon { width: 52px; height: 52px; }
@@ -2549,6 +2748,10 @@ body::before {
     .presskit-btn-icon { width: 38px; height: 38px; }
     .presskit-btn-icon svg { width: 18px; height: 18px; }
     .modal-presskit-footer { padding: 12px 16px 18px; }
+
+    /* GALERIA */
+    .galeria-section { padding: 40px 15px; }
+    .galeria-item { border-radius: 12px; }
 }
 
 /* =========================================
@@ -2632,7 +2835,18 @@ body::before {
     .agenda-calendario { min-width: 60px; padding: 6px 10px; }
     .agenda-contagem { font-size: 10px; padding: 3px 10px; }
 
+    /* GALERIA */
+    .galeria-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 1040px; }
+    .galeria-section { padding: 70px 40px; }
+
+    /* GALERIA MODAL */
+    .modal-galeria-painel { padding: 12px; }
+    .modal-galeria-grid { gap: 12px; }
+    .modal-galeria-titulo { font-size: 20px; margin-bottom: 12px; padding-bottom: 10px; }
+    .modal-galeria-card-img { height: 85px; }
+
     /* MODAL EVENTO */
+    #modal-evento .modal-painel { height: 480px; }
     .modal-midia { min-height: 240px; max-height: 50vh; }
     .modal-conteudo { padding: 22px 24px 28px; }
     .modal-conteudo h2 { font-size: 20px; }
@@ -2645,6 +2859,18 @@ body::before {
     .modal-servico-corpo { padding: 24px; }
     .modal-servico-imagem { width: 100px; height: 100px; }
 
+    /* MODAL PRESS KIT */
+    .modal-presskit-header { padding: 28px 24px 16px; }
+    .modal-presskit-header h2 { font-size: 22px; }
+    .modal-presskit-header p { font-size: 12px; }
+    .modal-presskit-corpo { padding: 20px 24px; }
+    .modal-presskit-btn { padding: 12px 16px; }
+    .presskit-btn-icon { width: 38px; height: 38px; }
+    .presskit-btn-icon svg { width: 18px; height: 18px; }
+    .presskit-btn-text strong { font-size: 13px; }
+    .presskit-btn-text small { font-size: 10px; }
+    .modal-presskit-footer { padding: 14px 24px 20px; }
+
     /* WHATSAPP */
     .whatsapp-flutuante { width: 52px; height: 52px; bottom: 30px; right: 30px; }
     .whatsapp-flutuante svg { width: 28px; height: 28px; }
@@ -2654,6 +2880,9 @@ body::before {
     .footer-logo-img { max-width: 140px; margin-bottom: 24px; }
     .footer-links { gap: 20px; margin-bottom: 28px; }
     .footer-links a { font-size: 12px; }
+
+    /* BACK TO TOP */
+    .back-to-top { width: 38px; height: 38px; font-size: 16px; bottom: 20px; left: 20px; }
 }
 
 /* =========================================
@@ -2666,6 +2895,20 @@ body::before {
     .cards-grid { grid-template-columns: repeat(3, 1fr); max-width: 1200px; margin: 0 auto; }
     .agenda-section { max-width: 1100px; margin: 0 auto; }
     .contato-section .contato-container { max-width: 600px; margin: 0 auto; }
+    #modal-evento .modal-painel { height: 640px; max-height: 85vh; max-width: 1000px; }
+    #modal-evento .modal-midia { width: 50%; }
+
+    /* GALERIA MODAL */
+    .modal-galeria-painel { max-width: 1200px; padding: 50px; }
+    .modal-galeria-grid { gap: 24px; }
+    .modal-galeria-card-img { height: 220px; }
+    .modal-galeria-titulo { font-size: 28px; }
+}
+
+@media (min-width: 1601px) {
+    /* GALERIA - só em viewports realmente grandes */
+    .galeria-grid { max-width: 1200px; }
+    .galeria-section { padding: 120px 50px; }
 }
 
 /* =========================================
@@ -2704,6 +2947,12 @@ body::before {
     background: #00cec9;
     color: #111;
     border-color: #00cec9;
+}
+
+/* Bloqueia scroll quando modal está aberto */
+body.no-scroll {
+    overflow: hidden;
+    position: relative;
 }
 
 @media (max-width: 768px) {

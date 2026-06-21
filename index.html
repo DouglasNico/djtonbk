@@ -20,7 +20,7 @@
     <title>DJ TON B.K | Site Oficial</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- ========================================== -->
-    <!-- CARTÃO DE VISITAS WHATSAPP / REDES SOCIAIS -->
+    <!-- CARTÒO DE VISITAS WHATSAPP / REDES SOCIAIS -->
     <!-- ========================================== -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="DJ Ton B.K | Transformando seu evento em uma experiência inesquecível">
@@ -31,7 +31,7 @@
     
     <!-- SUBSTITUA O LINK ABAIXO PELO LINK DA SUA IMAGEM DE CAPA -->
     <meta property="og:image" content="https://djtonbk-cd74a.web.app/img/capa-whatsapp.jpg">
-    <link rel="stylesheet" href="./css/style.css?v=25">
+    <link rel="stylesheet" href="./css/style.css?v=36">
     <!-- JSON-LD: Artista -->
     <script type="application/ld+json" id="jsonld-artista">
     {
@@ -184,7 +184,7 @@
     <div id="modal-galeria" class="modal-overlay">
         <div class="modal-painel modal-galeria-painel">
             <button class="modal-fechar" id="galeria-modal-fechar">&times;</button>
-            <h2 class="modal-galeria-titulo">Todos os Eventos</h2>
+            <h2 class="modal-galeria-titulo">EVENTOS REALIZADOS</h2>
             <div id="galeria-modal-lista" class="modal-galeria-grid">
                 <p style="color:#888;">Carregando...</p>
             </div>
@@ -243,7 +243,7 @@
 <!-- Modal de Detalhes do Evento -->
 <div id="modal-evento" class="modal-overlay">
         <div class="modal-painel">
-            <button class="modal-fechar">&times;</button>
+            <button class="modal-fechar" id="modal-evento-fechar">&times;</button>
 
             <div class="modal-midia">
                 <div class="modal-bg-blur"></div>
@@ -290,9 +290,12 @@
     <!-- Galeria Lightbox -->
     <div id="galeria-lightbox" class="zoom-overlay">
         <button class="zoom-fechar" id="galeria-fechar">&times;</button>
-        <img id="galeria-img" src="" alt="Foto ampliada">
         <button class="galeria-nav galeria-prev" id="galeria-prev">‹</button>
         <button class="galeria-nav galeria-next" id="galeria-next">›</button>
+        <div class="galeria-track-wrapper">
+            <div class="galeria-track" id="galeria-track"></div>
+        </div>
+        <div class="galeria-dots" id="galeria-dots"></div>
     </div>
 
     <!-- Puxando o arquivo JavaScript externo -->
@@ -398,6 +401,18 @@
         const db = getFirestore(app);
 
 // ==========================================
+        // TRAVAR/DESTRAVAR SCROLL (mantém posição)
+        // ==========================================
+        let scrollPos = 0;
+        function lockScroll() {
+            scrollPos = window.scrollY;
+            document.body.classList.add('no-scroll');
+        }
+        function unlockScroll() {
+            document.body.classList.remove('no-scroll');
+        }
+
+        // ==========================================
         // PUXANDO SERVIÇOS DO FIREBASE
         // ==========================================
 
@@ -504,7 +519,7 @@
                     lista.innerHTML = itens.map(i => `<li>${i}</li>`).join('');
                     
                     modal.classList.add('aberto');
-                    document.body.style.overflow = 'hidden';
+                    lockScroll();
                 });
             });
         }
@@ -512,13 +527,13 @@
         // Fechar modal de serviço
         document.querySelector('.fechar-servico').addEventListener('click', function() {
             document.getElementById('modal-servico').classList.remove('aberto');
-            document.body.style.overflow = '';
+            unlockScroll();
         });
 
         document.getElementById('modal-servico').addEventListener('click', function(e) {
             if (e.target === this) {
                 this.classList.remove('aberto');
-                document.body.style.overflow = '';
+                unlockScroll();
             }
         });
 
@@ -529,18 +544,18 @@
         document.getElementById('btn-presskit').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('modal-presskit').classList.add('aberto');
-            document.body.style.overflow = 'hidden';
+            lockScroll();
         });
 
         document.querySelector('.fechar-presskit').addEventListener('click', function() {
             document.getElementById('modal-presskit').classList.remove('aberto');
-            document.body.style.overflow = '';
+            unlockScroll();
         });
 
         document.getElementById('modal-presskit').addEventListener('click', function(e) {
             if (e.target === this) {
                 this.classList.remove('aberto');
-                document.body.style.overflow = '';
+                unlockScroll();
             }
         });
 
@@ -600,7 +615,7 @@
                             hoje.setHours(0, 0, 0, 0);
                             const diff = Math.round((new Date(evento.dataReal + 'T00:00:00') - hoje) / (1000 * 60 * 60 * 24));
                             if (diff === 0) diasRestantes = 'HOJE';
-                            else if (diff === 1) diasRestantes = 'AMANHÃ';
+                            else if (diff === 1) diasRestantes = 'AMANHÒ';
                             else if (diff > 0) diasRestantes = `FALTAM ${diff} DIAS`;
                             if (diff >= 0 && diff <= 7) urgenteClass = 'urgente';
                         }
@@ -728,7 +743,7 @@
                         const diff = Math.round((new Date(dataReal + 'T00:00:00') - hoje) / (1000 * 60 * 60 * 24));
                         let texto = '';
                         if (diff === 0) texto = 'ACONTECENDO HOJE';
-                        else if (diff === 1) texto = 'AMANHÃ';
+                        else if (diff === 1) texto = 'AMANHÒ';
                         else if (diff > 0) texto = `FALTAM ${diff} DIAS`;
                         if (texto) {
                             contagemSpan.innerText = texto;
@@ -762,6 +777,7 @@
 
                     // Abre o Modal
                     modal.classList.add('ativo');
+                    lockScroll();
                 });
             });
         }
@@ -775,17 +791,19 @@
         // LÓGICA PARA FECHAR O MODAL
         // ==========================================
         const modal = document.getElementById('modal-evento');
-        const btnFechar = document.querySelector('.modal-fechar');
+        const btnFechar = document.getElementById('modal-evento-fechar');
 
         // 1. Fecha quando clica no "X"
         btnFechar.addEventListener('click', function() {
             modal.classList.remove('ativo');
+            unlockScroll();
         });
 
         // 2. Fecha quando clica no fundo escuro fora da caixinha
         window.addEventListener('click', function(e) {
             if (e.target === modal) {
                 modal.classList.remove('ativo');
+                unlockScroll();
             }
         });
 
@@ -798,7 +816,7 @@
         function abrirZoom(src) {
             zoomImg.src = src;
             zoomOverlay.classList.add('ativo');
-            document.body.style.overflow = 'hidden';
+            lockScroll();
         }
 
         document.getElementById('btn-zoom-img').addEventListener('click', function(e) {
@@ -813,13 +831,13 @@
 
         document.querySelector('.zoom-fechar').addEventListener('click', function() {
             zoomOverlay.classList.remove('ativo');
-            document.body.style.overflow = '';
+            unlockScroll();
         });
 
         zoomOverlay.addEventListener('click', function(e) {
             if (e.target === this) {
                 this.classList.remove('ativo');
-                document.body.style.overflow = '';
+                unlockScroll();
             }
         });
 
@@ -835,7 +853,8 @@
         }
 
         const galeriaLightbox = document.getElementById('galeria-lightbox');
-        const galeriaImg = document.getElementById('galeria-img');
+        const galeriaTrack = document.getElementById('galeria-track');
+        const galeriaDots = document.getElementById('galeria-dots');
         const galeriaGrid = document.getElementById('galeria-grid');
         const btnVerMaisGaleria = document.getElementById('btn-ver-mais-galeria');
         const modalGaleria = document.getElementById('modal-galeria');
@@ -916,26 +935,46 @@
             if (!evento || !Array.isArray(evento.fotos) || evento.fotos.length === 0) return;
             galeriaFotosAtuais = evento.fotos;
             galeriaIndex = 0;
-            galeriaImg.src = evento.fotos[0].url;
+
+            galeriaTrack.innerHTML = galeriaFotosAtuais.map((foto, i) =>
+                `<div class="galeria-slide"><img src="${foto.url}" alt="Foto ${i + 1}" loading="lazy"></div>`
+            ).join('');
+
+            galeriaDots.innerHTML = galeriaFotosAtuais.map((_, i) =>
+                `<span class="galeria-dot${i === 0 ? ' ativo' : ''}"></span>`
+            ).join('');
+
+            galeriaTrack.style.transform = 'translateX(0)';
+            galeriaTrack.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
             galeriaLightbox.classList.add('ativo');
             galeriaLightbox.dataset.sourceModal = sourceModal ? 'true' : '';
-            document.body.style.overflow = 'hidden';
+            lockScroll();
         }
 
         function fecharGaleria() {
             galeriaLightbox.classList.remove('ativo');
-            document.body.style.overflow = '';
+            unlockScroll();
             if (galeriaLightbox.dataset.sourceModal === 'true') {
                 galeriaLightbox.dataset.sourceModal = '';
                 modalGaleria.classList.add('ativo');
-                document.body.style.overflow = 'hidden';
+                lockScroll();
             }
         }
 
         function navegarGaleria(dir) {
-            if (galeriaFotosAtuais.length === 0) return;
-            galeriaIndex = (galeriaIndex + dir + galeriaFotosAtuais.length) % galeriaFotosAtuais.length;
-            galeriaImg.src = galeriaFotosAtuais[galeriaIndex].url;
+            const total = galeriaFotosAtuais.length;
+            if (total === 0) return;
+            galeriaIndex = (galeriaIndex + dir + total) % total;
+            galeriaTrack.style.transform = `translateX(-${galeriaIndex * 100}%)`;
+            atualizarDots();
+        }
+
+        function atualizarDots() {
+            const dots = galeriaDots.querySelectorAll('.galeria-dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('ativo', i === galeriaIndex);
+            });
         }
 
         document.getElementById('galeria-fechar').addEventListener('click', fecharGaleria);
@@ -943,7 +982,19 @@
         document.getElementById('galeria-next').addEventListener('click', () => navegarGaleria(1));
 
         galeriaLightbox.addEventListener('click', function(e) {
-            if (e.target === this) fecharGaleria();
+            if (e.target.closest('.galeria-nav') || e.target.closest('.zoom-fechar') || e.target.closest('.galeria-dots')) return;
+            if (e.target.closest('img')) return;
+            fecharGaleria();
+        });
+
+        galeriaDots.addEventListener('click', function(e) {
+            const dot = e.target.closest('.galeria-dot');
+            if (!dot) return;
+            const idx = Array.from(this.children).indexOf(dot);
+            if (idx === galeriaIndex) return;
+            galeriaIndex = idx;
+            galeriaTrack.style.transform = `translateX(-${galeriaIndex * 100}%)`;
+            atualizarDots();
         });
 
         document.addEventListener('keydown', function galeriaKey(e) {
@@ -952,18 +1003,39 @@
             if (e.key === 'ArrowRight') navegarGaleria(1);
         });
 
-        // Touch / swipe para lightbox
+        // Touch / swipe para lightbox com drag suave
         let touchStartX = 0;
-        let touchEndX = 0;
+        let touchCurrentX = 0;
+        let isDragging = false;
+        let dragStartTranslate = 0;
+
         galeriaLightbox.addEventListener('touchstart', function(e) {
+            if (e.target.closest('.galeria-nav') || e.target.closest('.zoom-fechar') || e.target.closest('.galeria-dots')) return;
             touchStartX = e.changedTouches[0].screenX;
+            touchCurrentX = touchStartX;
+            isDragging = true;
+            galeriaTrack.style.transition = 'none';
+            dragStartTranslate = -galeriaIndex * 100;
         }, { passive: true });
+
+        galeriaLightbox.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            touchCurrentX = e.changedTouches[0].screenX;
+            const diff = touchCurrentX - touchStartX;
+            const movePct = (diff / galeriaTrack.parentElement.offsetWidth) * 100;
+            galeriaTrack.style.transform = `translateX(${dragStartTranslate + movePct}%)`;
+        }, { passive: true });
+
         galeriaLightbox.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
+            if (!isDragging) return;
+            isDragging = false;
+            galeriaTrack.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            const diff = touchCurrentX - touchStartX;
             if (Math.abs(diff) > 50) {
-                if (diff > 0) navegarGaleria(1);
-                else navegarGaleria(-1);
+                if (diff > 0) navegarGaleria(-1);
+                else navegarGaleria(1);
+            } else {
+                galeriaTrack.style.transform = `translateX(-${galeriaIndex * 100}%)`;
             }
         }, { passive: true });
 
@@ -991,37 +1063,38 @@
                 const localStr = evento.cidade ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade) : (evento.local || '');
                 const card = document.createElement('div');
                 card.className = 'modal-galeria-card';
+                const qtdFotos = Array.isArray(evento.fotos) ? evento.fotos.length : 0;
                 card.innerHTML = `
                     <div class="modal-galeria-card-img">
                         <img src="${evento.capa || ''}" alt="${evento.titulo || 'Evento'}" loading="lazy">
+                        <span class="galeria-fotos-count">${qtdFotos} ${qtdFotos === 1 ? 'foto' : 'fotos'}</span>
                     </div>
                     <div class="modal-galeria-card-body">
                         <strong>${evento.titulo || 'Evento'}</strong>
                         <span class="modal-galeria-card-meta">${formatarData(evento.data)}${localStr ? ' · ' + localStr : ''}</span>
-                        <span class="modal-galeria-card-fotos">${Array.isArray(evento.fotos) ? evento.fotos.length : 0} foto(s)</span>
                     </div>
                 `;
                 card.addEventListener('click', () => {
                     modalGaleria.classList.remove('ativo');
-                    document.body.style.overflow = '';
+                    unlockScroll();
                     abrirGaleria(idx, galeriaEventos, true);
                 });
                 galeriaModalLista.appendChild(card);
             });
 
             modalGaleria.classList.add('ativo');
-            document.body.style.overflow = 'hidden';
+            lockScroll();
         });
 
         document.getElementById('galeria-modal-fechar').addEventListener('click', function() {
             modalGaleria.classList.remove('ativo');
-            document.body.style.overflow = '';
+            unlockScroll();
         });
 
         modalGaleria.addEventListener('click', function(e) {
             if (e.target === this) {
                 modalGaleria.classList.remove('ativo');
-                document.body.style.overflow = '';
+                unlockScroll();
             }
         });
 
@@ -1044,7 +1117,7 @@
                         el.classList.remove('ativo', 'aberto');
                     }
                 });
-                document.body.style.overflow = '';
+                unlockScroll();
             }
         });
 

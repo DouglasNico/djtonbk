@@ -10,11 +10,12 @@
 ## Estrutura de Arquivos
 ```
 /
-├── index.html          → Site principal (~1050 linhas)
+├── index.html          → Site principal (~1160 linhas)
 ├── admin.html          → Painel administrativo
-├── css/style.css       → Todos os estilos (~2740 linhas)
-├── js/script.js        → Scroll reveal, navbar, hamburger, partículas, equalizer (~250 linhas)
+├── css/style.css       → Todos os estilos (~2985 linhas)
+├── js/script.js        → Scroll reveal, navbar, hamburger, partículas, equalizer (~256 linhas)
 ├── img/                → Imagens (logo, capa-video.jpg)
+├── backup/             → Cópia do site original (referência visual)
 ├── favicon.svg
 └── memoria.md          ← Este arquivo
 ```
@@ -61,6 +62,7 @@
   - Text-shadow glow cyan
 - 2 CTAs (VER PACOTES / FALE COMIGO)
 - Stats: 10+ ANOS · 500+ EVENTOS · 100% SATISFAÇÃO (com linha divisória sutil)
+- Ao trocar de aba, o navegador gerencia pausa/retomada das animações nativamente (sem JS handler)
 
 #### Partículas Flutuantes
 - `.site-particles` absoluto dentro do hero, `z-index: 2`, `overflow: hidden`
@@ -95,8 +97,20 @@
 
 #### Galeria (Firestore) — Tempo Real
 - Grid de cards com overlay mostrando título, data/local e **contagem de fotos**
-- Lightbox com navegação por setas, teclado (← →) e **swipe touch**
-- VER MAIS modal com **preload de imagens** (promise all)
+- VER MAIS modal com grid responsivo de cards (`.modal-galeria-grid`)
+  - Card image height reduzido em breakpoints menores (85px em 1024px/HiDPI, 160px mobile)
+  - Modal compacto sem `overflow-y` (comporta-se como o backup)
+- Lightbox completo com:
+  - Track deslizante (`translateX` com `transition: 0.35s cubic-bezier`)
+  - Cada foto em `.galeria-slide` (`flex-shrink:0; width:100%`) — img centralizada com `max-width/max-height` (não estica)
+  - **Slide suave** com CSS transform (não troca `src` instantaneamente)
+  - Navegação por setas, teclado (← →) e **swipe touch com drag + snap**
+  - **Indicadores (bolinhas)** na parte inferior: mostra total de fotos e qual está ativa
+  - Clique nas bolinhas navega direto para a foto
+  - Clique **fora** da foto (letterbox/fundo) → fecha
+  - Clique **na** foto → não fecha
+  - Cursor: `default` na foto, `zoom-out` no fundo (mostra que fecha)
+  - Touch exclui nav/close/dots para não atrapalhar swipe
 - Lightbox aberta do VER MAIS: ao fechar (X, ESC, clique fora), **retorna ao modal**
 - **Dados em tempo real via `onSnapshot`**
 
@@ -116,7 +130,7 @@
 - Logo + links + direitos reservados
 
 #### Cache Busting
-- CSS link usa query string `?v=N` (ex: `style.css?v=16`)
+- CSS link usa query string `?v=N` (ex: `style.css?v=36`)
 
 #### Scrollbar Customizada
 - WebKit: thumb #00cec9, hover #00e6e0, track #111, 8px
@@ -211,6 +225,36 @@
   ]
 }
 ```
+
+---
+
+## Bugs Corrigidos
+
+| # | Problema | Causa | Solução |
+|---|---|---|---|
+| 1 | CSS quebrava do `.agenda-item .btn-detalhes` pra frente | `}` extra na linha 1074 do `style.css` original | Removeu a chave extra |
+| 2 | Acentos, emoji e setas corrompidos no site | Dupla codificação UTF-8 no `index.html` | Re-extraiu e corrigiu codificação |
+| 3 | Modal de evento não fechava (X abria galeria) | `querySelector('.modal-fechar')` pegava o botão errado | Mudou pra `getElementById('modal-evento-fechar')` |
+| 4 | Admin sem CSS | `href="style.css"` sem pasta `css/` | Corrigido para `href="css/style.css"` |
+| 5 | Lightbox não fechava ao clicar fora após refatoração | `.galeria-slide` com `object-fit: contain` fazia img ocupar 100% do container | Clicar na slide bg (fora da img) fecha; clicar na img (`e.target.closest('img')`) não fecha |
+| 6 | Layout da galeria modal quebrado em 125%/150% (scrollbar aparecia) | `max-height: 90vh; overflow-y: auto` adicionado, mas backup não tinha | Removeu `max-height/overflow-y` e reduziu tamanho dos cards (padding, img height, título) |
+
+## Ajustes de CSS para Notebook (125%/150%)
+
+### Galeria Modal (`.modal-galeria-grid`)
+| Propriedade | 1024px | HiDPI |
+|---|---|---|
+| `padding` painel | 14px | 12px |
+| `card-img height` | 85px | 85px |
+| `font-size` título | 20px | 20px |
+| `margin-bottom` título | 12px | 12px |
+| `padding-bottom` título | 10px | 10px |
+| `grid gap` | 14px (herdado) | 12px |
+| Colunas | `minmax(230px, 1fr)` | base `minmax(280px, 1fr)` |
+
+### Galeria Lightbox Refatorado
+- **Antes**: trocava `img.src` instantaneamente, sem indicadores
+- **Depois**: track com `translateX` e transição CSS, bolinhas indicadoras, swipe com drag+snap
 
 ---
 
