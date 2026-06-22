@@ -37,8 +37,24 @@ menuLinks.forEach(link => {
     link.addEventListener('click', function (e) {
         e.preventDefault();
         const targetId = this.getAttribute('href');
+        if (targetId === '#home') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
         const target = document.querySelector(targetId);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (target) {
+            let scrollEl;
+            if (targetId === '#sobre') {
+                scrollEl = target.querySelector('.sobre-container, h2') || target;
+            } else {
+                scrollEl = target.querySelector('.container-titulo, h2') || target;
+            }
+            const revealed = target.querySelector('.reveal.ativo');
+            const navH = document.querySelector('.navbar').offsetHeight;
+            const extra = revealed ? 10 : 50;
+            const top = scrollEl.getBoundingClientRect().top + window.scrollY - navH - extra;
+            window.scrollTo({ top, behavior: 'smooth' });
+        }
     });
 });
 
@@ -249,3 +265,4 @@ function criarEqualizer() {
 
 criarParticulas();
 criarEqualizer();
+
