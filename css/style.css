@@ -617,10 +617,12 @@ section[id], header[id] { scroll-margin-top: 0; }
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), box-shadow 0.4s ease;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(0, 206, 201, 0.05);
     border: 1px solid rgba(255,255,255,0.05);
     position: relative;
+    min-width: 0;
+    word-break: break-word;
 }
 
 .card::before {
@@ -1431,6 +1433,7 @@ section[id], header[id] { scroll-margin-top: 0; }
     border: 1px solid rgba(0, 206, 201, 0.08);
     position: relative;
     overflow: hidden;
+    width: 100%;
 }
 
 .contato-container::before {
@@ -1589,6 +1592,16 @@ section[id], header[id] { scroll-margin-top: 0; }
 /* ========================================= */
 /* RESPONSIVO                                */
 /* ========================================= */
+@media (max-width: 1200px) {
+    .services-section { padding: 80px 30px; }
+    .cards-grid { gap: 20px; }
+    .sobre-section { padding: 80px 30px; }
+    .agenda-section { padding: 80px 30px; }
+    .galeria-section { padding: 80px 30px; }
+    .contato-section { padding: 80px 30px; }
+    .contato-container { padding: 40px; }
+}
+
 @media (max-width: 1024px) {
     .navbar { padding: 10px 20px; }
     .nav-links { gap: 20px; }
@@ -1609,11 +1622,27 @@ section[id], header[id] { scroll-margin-top: 0; }
     .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .galeria-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .galeria-section { padding: 80px 30px; }
+    .contato-section { padding: 80px 30px; }
     .contato-container { padding: 35px; }
     #modal-evento .modal-painel { height: 520px; }
     .modal-presskit-header { padding: 30px 24px 14px; }
     .modal-presskit-header h2 { font-size: 22px; }
     .modal-presskit-btn { padding: 12px 18px; font-size: 12px; }
+}
+
+@media (max-width: 900px) {
+    .services-section { padding: 60px 20px; }
+    .sobre-section { padding: 60px 20px; }
+    .agenda-section { padding: 60px 20px; }
+    .galeria-section { padding: 60px 20px; }
+    .contato-section { padding: 60px 20px; }
+    .contato-container { padding: 30px 24px; }
+    .cards-grid { gap: 16px; }
+    .hero h1 { font-size: 36px; }
+    .hero-stats { gap: 24px; }
+    .hero-stat-num { font-size: 20px; }
+    .hero-stat-num.counter { font-size: 24px; }
+    .container-titulo { margin-bottom: 40px; }
 }
 
 @media (max-width: 768px) {
