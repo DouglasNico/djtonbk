@@ -1511,9 +1511,12 @@ O pacote ideal para eventos intimistas.
                     return;
                 }
 
-                galeriaFirebase.forEach((documento) => {
-                    const evento = documento.data();
-                    const idEvento = documento.id;
+                const eventosOrdenados = [];
+                galeriaFirebase.forEach((doc) => eventosOrdenados.push({ id: doc.id, ...doc.data() }));
+                eventosOrdenados.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+
+                eventosOrdenados.forEach((evento) => {
+                    const idEvento = evento.id;
 
                     const localStr = evento.cidade
                         ? (evento.estado ? `${evento.cidade}, ${evento.estado}` : evento.cidade)
