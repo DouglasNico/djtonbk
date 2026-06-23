@@ -1615,15 +1615,23 @@ section[id], header[id] { scroll-margin-top: 0; }
     .hero-stat-num { font-size: 22px; }
     .hero-stat-num.counter { font-size: 28px; }
     .hero-stat-label { font-size: 9px; letter-spacing: 2px; }
-    .services-section { padding: 80px 30px; }
-    .sobre-section { padding: 80px 30px; }
-    .agenda-section { padding: 80px 30px; }
-    .container-titulo h2 { font-size: 38px; }
-    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .services-section { padding: 70px 30px; }
+    .sobre-section { padding: 70px 30px; }
+    .agenda-section { padding: 70px 30px; }
+    .container-titulo h2 { font-size: 34px; }
+    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .card-image { height: 130px; }
+    .card-content { padding: 14px 16px; }
+    .card-content h3 { font-size: 14px; margin-bottom: 8px; }
+    .card-categoria { font-size: 10px; margin-bottom: 6px; }
+    .card-preco { font-size: 16px; margin-bottom: 8px; }
+    .card-descricao { font-size: 11px; margin-bottom: 10px; }
+    .card-itens li { font-size: 11px; padding: 4px 0 4px 18px; }
     .galeria-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .galeria-section { padding: 80px 30px; }
-    .contato-section { padding: 80px 30px; }
-    .contato-container { padding: 35px; }
+    .galeria-section { padding: 70px 30px; }
+    .contato-section { padding: 70px 30px; }
+    .contato-container { padding: 30px; max-width: 480px; }
+    .contato-form input, .contato-form select, .contato-form textarea { padding: 12px 14px; font-size: 13px; }
     #modal-evento .modal-painel { height: 520px; }
     .modal-presskit-header { padding: 30px 24px 14px; }
     .modal-presskit-header h2 { font-size: 22px; }
@@ -1636,13 +1644,18 @@ section[id], header[id] { scroll-margin-top: 0; }
     .agenda-section { padding: 60px 20px; }
     .galeria-section { padding: 60px 20px; }
     .contato-section { padding: 60px 20px; }
-    .contato-container { padding: 30px 24px; }
-    .cards-grid { gap: 16px; }
+    .contato-container { padding: 24px 20px; max-width: 420px; }
+    .cards-grid { gap: 14px; }
+    .card-image { height: 120px; }
+    .card-content { padding: 12px 14px; }
+    .card-content h3 { font-size: 13px; }
+    .card-preco { font-size: 15px; }
     .hero h1 { font-size: 36px; }
     .hero-stats { gap: 24px; }
     .hero-stat-num { font-size: 20px; }
     .hero-stat-num.counter { font-size: 24px; }
-    .container-titulo { margin-bottom: 40px; }
+    .container-titulo { margin-bottom: 35px; }
+    .container-titulo h2 { font-size: 30px; }
 }
 
 @media (max-width: 768px) {
