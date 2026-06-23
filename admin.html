@@ -5,256 +5,318 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin - DJ Ton B.K</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        body { background-color: #111; color: #fff; padding: 40px 20px; font-family: sans-serif; min-height: 100vh; box-sizing: border-box; }
-        
-        /* ESTILOS DA TELA DE LOGIN */
+        * { box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #0d1f1c 50%, #0a0a0a 100%);
+            color: #e0e0e0;
+            padding: 40px 20px;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* LOGIN */
         .login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
-        .login-box { background-color: #1a1a1a; padding: 40px; border-radius: 8px; border: 1px solid #333; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .login-box h2 { color: #00cec9; margin-bottom: 30px; font-size: 28px; }
-        
-        /* ESTILOS DO PAINEL ADMIN */
-        .admin-container { max-width: 800px; margin: 0 auto; display: none; } /* Inicia escondido */
-        .admin-header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 20px; }
-        .admin-header { color: #00cec9; margin: 0; }
-        .btn-sair { background-color: transparent; color: #ff4757; border: 1px solid #ff4757; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
-        .btn-sair:hover { background-color: #ff4757; color: #fff; }
-        
-      /* CAMPOS DE INPUT E TEXTAREA - AJUSTADOS PARA MAIOR CONTRASTE */
+        .login-box {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 48px 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 206, 201, 0.15);
+            width: 100%; max-width: 420px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .login-box h2 {
+            color: #00cec9;
+            margin-bottom: 32px;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* PAINEL */
+        .admin-container { max-width: 840px; margin: 0 auto; display: none; }
+        .admin-header-box {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 36px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .admin-header {
+            color: #fff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;
+        }
+        .admin-header span { color: #00cec9; }
+        .btn-sair {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.25);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        .btn-sair:hover { background: rgba(255, 71, 87, 0.2); border-color: rgba(255, 71, 87, 0.5); }
+
+        /* INPUTS */
         .form-box input, .form-box textarea, .login-box input {
-            width: 100%; 
-            padding: 15px; 
-            margin-bottom: 15px;
-            background-color: #2a2a2a; 
-            border: 1px solid #444;    
-            color: #fff; 
-            border-radius: 4px; 
-            box-sizing: border-box;
-            transition: border-color 0.3s, background-color 0.3s;
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
             resize: vertical;
         }
-
-        .campos-dupla {
-            display: flex;
-            gap: 10px;
+        .form-box input:hover, .form-box textarea:hover, .login-box input:hover {
+            border-color: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
         }
-        .campos-dupla input {
-            flex: 1;
-        }
+        .campos-dupla { display: flex; gap: 12px; }
+        .campos-dupla input { flex: 1; }
 
-        /* ESTILO DO INPUT DATE (calendário escuro) */
         input[type="date"] {
             color-scheme: dark;
             color: #fff;
-            background-color: #2a2a2a;
+            background: rgba(255,255,255,0.04);
             cursor: pointer;
-            min-height: 47px;
+            min-height: 48px;
         }
-        input[type="date"]:hover {
-            background-color: #333;
-            border-color: #00cec9;
-        }
+        input[type="date"]:hover { background: rgba(255,255,255,0.06); border-color: rgba(0,206,201,0.4); }
         input[type="date"]::-webkit-calendar-picker-indicator {
             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2300cec9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") no-repeat center;
-            background-size: contain;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            transition: background-color 0.2s;
+            background-size: contain; cursor: pointer; padding: 8px; border-radius: 8px;
         }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover {
-            background-color: rgba(0, 206, 201, 0.2);
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { background-color: rgba(0,206,201,0.15); }
+
+        .form-box input::placeholder, .form-box textarea::placeholder, .login-box input::placeholder { color: #555; }
+        .form-box input:focus, .form-box textarea:focus, .login-box input:focus {
+            outline: none;
+            border-color: rgba(0,206,201,0.5);
+            background: rgba(0,206,201,0.04);
+            box-shadow: 0 0 0 3px rgba(0,206,201,0.08);
         }
 
-        /* TOAST DE NOTIFICAÇÃO */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
+        /* FORM BOX */
+        .form-box {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
         }
-        .toast {
-            pointer-events: auto;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-left: 4px solid #00cec9;
+
+        .form-box h3 {
             color: #fff;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-            animation: toastIn 0.35s ease, toastOut 0.35s ease 3s forwards;
-            max-width: 380px;
-        }
-        .toast.erro { border-left-color: #ff4757; }
-        .toast.erro strong { color: #ff4757; }
-        .toast strong { color: #00cec9; }
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateX(60px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes toastOut {
-            from { opacity: 1; transform: translateX(0); }
-            to { opacity: 0; transform: translateX(60px); }
-        }
-
-        /* Cor do texto de exemplo (Placeholder) */
-        .form-box input::placeholder, .form-box textarea::placeholder, .login-box input::placeholder {
-            color: #aaa; 
-        }
-
-        /* Efeito quando você clica no campo para digitar */
-        .form-box input:focus, .form-box textarea:focus, .login-box input:focus { 
-            outline: none; 
-            border-color: #00cec9; 
-            background-color: #333; 
+            margin-bottom: 20px;
+            letter-spacing: 0.3px;
         }
 
         /* BOTÕES */
-        .btn-salvar { background-color: #00cec9; color: #111; width: 100%; font-weight: bold; padding: 15px; border: none; cursor: pointer; border-radius: 4px; transition: all 0.3s ease; }
-        .btn-salvar:hover { background-color: #00f0ea; transform: translateY(-2px); }
-        
-        .btn-cancelar { background-color: #555; color: #fff; width: 100%; font-weight: bold; padding: 15px; border: none; cursor: pointer; border-radius: 4px; margin-top: 10px; display: none; transition: all 0.3s ease; }
-        .btn-cancelar:hover { background-color: #777; transform: translateY(-2px); }
-        
-        /* LISTA DE EVENTOS CADASTRADOS */
-        .evento-linha { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; padding: 15px 20px; margin-bottom: 10px; border-left: 4px solid #00cec9; border-radius: 4px; transition: all 0.3s ease; }
-        .evento-linha:hover { background-color: #252525; transform: translateX(10px); box-shadow: -5px 5px 15px rgba(0, 0, 0, 0.4); }
-        
-        .botoes-acao { display: flex; gap: 10px; }
-        .btn-apagar { background-color: #ff4757; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s ease; }
-        .btn-editar { background-color: #f1c40f; color: #111; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s ease; }
-        .btn-apagar:hover { background-color: #ff6b81; transform: scale(1.05); }
-        .btn-editar:hover { background-color: #f7d754; transform: scale(1.05); }
-    
-/* ESTILO DO CAMPO DE UPLOAD */
-        .upload-box { background-color: #2a2a2a; border: 1px dashed #555; padding: 15px; border-radius: 4px; margin-bottom: 15px; }
+        .btn-salvar {
+            background: linear-gradient(135deg, #00cec9, #00b5b0);
+            color: #0a0a0a;
+            width: 100%;
+            font-weight: 700;
+            padding: 14px;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-salvar:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,206,201,0.25); }
+        .btn-salvar:active { transform: translateY(0); }
+
+        .btn-cancelar {
+            background: rgba(255,255,255,0.06);
+            color: #aaa;
+            width: 100%;
+            font-weight: 600;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            border-radius: 12px;
+            margin-top: 10px;
+            display: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-cancelar:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        /* LISTA */
+        .evento-linha {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .evento-linha:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(0,206,201,0.15);
+            transform: translateX(4px);
+        }
+        .botoes-acao { display: flex; gap: 8px; }
+        .btn-apagar {
+            background: rgba(255, 71, 87, 0.12);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-editar {
+            background: rgba(241, 196, 15, 0.12);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-apagar:hover { background: rgba(255, 71, 87, 0.25); border-color: rgba(255, 71, 87, 0.5); }
+        .btn-editar:hover { background: rgba(241, 196, 15, 0.25); border-color: rgba(241, 196, 15, 0.5); }
+
+        /* UPLOAD */
+        .upload-box {
+            background: rgba(255,255,255,0.02);
+            border: 1px dashed rgba(255,255,255,0.1);
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
         input[type="file"]::file-selector-button {
-            background-color: #00cec9; color: #111; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 15px; transition: 0.3s;
+            background: linear-gradient(135deg, #00cec9, #00b5b0);
+            color: #0a0a0a;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            margin-right: 12px;
+            transition: 0.3s;
+            font-family: 'Poppins', sans-serif;
         }
-        input[type="file"]::file-selector-button:hover { background-color: #00f0ea; }
+        input[type="file"]::file-selector-button:hover { box-shadow: 0 4px 15px rgba(0,206,201,0.3); }
 
-
-       /* =========================================
-           RESPONSIVO (CELULAR) - PAINEL ADMIN
-           ========================================= */
-        @media (max-width: 768px) {
-            /* 1. Ajusta o espaço geral da tela */
-            body { padding: 20px 10px; }
-            .form-box { padding: 20px 15px; }
-            
-            /* 2. Empilha o título do painel e o botão de Sair */
-            .admin-header-box { 
-                flex-direction: column; 
-                gap: 15px; 
-                text-align: center; 
-            }
-            .btn-sair { width: 100%; }
-
-            /* 3. Empilha o evento e os botões de ação */
-            .evento-linha { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 15px; 
-            }
-            
-            /* Garante que o texto do evento ocupe a largura toda */
-            .evento-linha > div:first-child {
-                width: 100%;
-                line-height: 1.5;
-            }
-
-            /* 4. Ajusta os botões EDITAR e APAGAR */
-            .botoes-acao { 
-                width: 100%; 
-                display: grid; 
-                grid-template-columns: 1fr 1fr; 
-                gap: 10px;
-            }
-            .btn-editar, .btn-apagar { 
-                width: 100%; 
-                text-align: center; 
-                padding: 12px 10px; 
-            }
-            
-            /* 5. Ajusta a tela de Login */
-            .login-box { padding: 30px 20px; }
-            .login-box h2 { font-size: 24px; }
-
-            /* 6. NOVO: Ajusta o campo de Upload de Imagem no celular */
-            .upload-box { padding: 15px 10px; }
-            input[type="file"] { 
-                width: 100%; 
-                font-size: 13px; 
-                white-space: normal; /* Deixa o nome da foto quebrar de linha se for muito grande */
-            }
-            input[type="file"]::file-selector-button {
-                display: block; 
-                width: 100%; 
-                margin-bottom: 10px; 
-                margin-right: 0; 
-                text-align: center;
-            }
-            
-            /* 7. Campos dupla empilha no celular */
-            .campos-dupla {
-                flex-direction: column;
-                gap: 0;
-            }
+        /* TOAST */
+        .toast-container { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast {
+            pointer-events: auto;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0,206,201,0.2);
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), toastOut 0.3s ease 3s forwards;
+            max-width: 380px;
         }
-    
-        /* ESTILO DAS ABAS (TABS) */
+        .toast.erro { border-color: rgba(255,71,87,0.3); }
+        .toast.erro strong { color: #ff4757; }
+        .toast strong { color: #00cec9; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(40px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
+
+        /* ABAS */
         .admin-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 0;
+            display: flex; gap: 6px; margin-bottom: 28px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 14px;
+            padding: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .tab-btn {
             background: transparent;
-            color: #888;
+            color: #666;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 22px;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-radius: 10px;
             transition: all 0.3s ease;
-            border-radius: 4px 4px 0 0;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
+            font-family: 'Poppins', sans-serif;
         }
-        .tab-btn:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.03);
-        }
+        .tab-btn:hover { color: #aaa; background: rgba(255,255,255,0.04); }
         .tab-btn.ativo {
             color: #00cec9;
-            border-bottom-color: #00cec9;
-            background: rgba(0,206,201,0.05);
+            background: rgba(0,206,201,0.1);
+            box-shadow: 0 2px 10px rgba(0,206,201,0.1);
         }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.ativo {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .tab-content { display: none; }
+        .tab-content.ativo { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* TÍTULOS DAS LISTAS */
+        .evento-linha strong { color: #00cec9; }
+        h3 { color: #fff; font-size: 16px; font-weight: 600; }
+
+        /* RESPONSIVO */
+        @media (max-width: 768px) {
+            body { padding: 20px 12px; }
+            .form-box { padding: 20px 16px; }
+            .admin-header-box { flex-direction: column; gap: 16px; text-align: center; }
+            .btn-sair { width: 100%; }
+            .evento-linha { flex-direction: column; align-items: flex-start; gap: 14px; }
+            .evento-linha > div:first-child { width: 100%; line-height: 1.5; }
+            .botoes-acao { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+            .btn-editar, .btn-apagar { width: 100%; text-align: center; padding: 12px 10px; }
+            .login-box { padding: 32px 24px; }
+            .login-box h2 { font-size: 22px; }
+            .upload-box { padding: 14px 12px; }
+            input[type="file"] { width: 100%; font-size: 13px; white-space: normal; }
+            input[type="file"]::file-selector-button { display: block; width: 100%; margin-bottom: 10px; margin-right: 0; text-align: center; }
+            .campos-dupla { flex-direction: column; gap: 0; }
+            .admin-tabs { gap: 4px; padding: 4px; }
+            .tab-btn { padding: 10px 14px; font-size: 13px; }
+            .servico-preview-wrapper { flex-direction: column; align-items: center; gap: 14px; padding: 14px; }
         }
 
-        /* AJUSTE RESPONSIVO DAS ABAS */
-        @media (max-width: 768px) {
-            .admin-tabs { gap: 5px; }
-            .tab-btn { padding: 10px 15px; font-size: 13px; }
+        .servico-preview-wrapper {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
         }
     </style>
 </head>
@@ -275,7 +337,7 @@
 
     <div id="secao-painel" class="admin-container">
         <div class="admin-header-box">
-            <h1 class="admin-header">Painel Administrativo</h1>
+            <h1 class="admin-header">Painel <span>Administrativo</span></h1>
             <button id="btn-logout" class="btn-sair">SAIR / LOGOUT</button>
         </div>
 
@@ -303,6 +365,7 @@
                     <div class="upload-box">
                         <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">Flyer do Evento (Upload ou Link)</label>
                         <input type="file" id="imagem-upload" accept="image/*" style="padding: 10px; background: #222;">
+                        <div id="evento-imagem-preview" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
                         <p style="text-align: center; margin: 5px 0; color: #666; font-size: 12px;">OU</p>
                         <input type="text" id="imagem" placeholder="Cole o link de uma imagem aqui (Opcional)">
                     </div>
@@ -313,7 +376,7 @@
                 </form>
             </div>
 
-            <h3>Eventos Cadastrados</h3>
+            <h3 style="text-align:center;margin:32px 0 16px;font-size:13px;color:#888;font-weight:600;letter-spacing:3px;text-transform:uppercase;">Eventos Cadastrados</h3>
             <div id="lista-admin">
                 <p style="color: #888;">Carregando eventos...</p>
             </div>
@@ -332,6 +395,7 @@
                     <div class="upload-box">
                         <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">Imagem do Serviço (Upload ou Link)</label>
                         <input type="file" id="servico-imagem-upload" accept="image/*" style="padding: 10px; background: #222;">
+                        <div id="servico-imagem-preview" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
                         <p style="text-align: center; margin: 5px 0; color: #666; font-size: 12px;">OU</p>
                         <input type="text" id="servico-imagem" placeholder="Cole o link de uma imagem aqui (Opcional)">
                     </div>
@@ -349,7 +413,7 @@ O pacote ideal para eventos intimistas.
                 </form>
             </div>
 
-            <h3>Serviços Cadastrados</h3>
+            <h3 style="text-align:center;margin:32px 0 16px;font-size:13px;color:#888;font-weight:600;letter-spacing:3px;text-transform:uppercase;">Serviços Cadastrados</h3>
             <div id="lista-servicos-admin">
                 <p style="color: #888;">Carregando serviços...</p>
             </div>
@@ -376,7 +440,7 @@ O pacote ideal para eventos intimistas.
                 </form>
             </div>
 
-            <h3>Eventos na Galeria</h3>
+            <h3 style="text-align:center;margin:32px 0 16px;font-size:13px;color:#888;font-weight:600;letter-spacing:3px;text-transform:uppercase;">Eventos na Galeria</h3>
             <div id="lista-galeria-admin">
                 <p style="color: #888;">Carregando eventos...</p>
             </div>
@@ -445,7 +509,51 @@ O pacote ideal para eventos intimistas.
         const btnCancelar = document.getElementById('btn-cancelar');
         const tituloForm = document.getElementById('titulo-form');
 
-        let idEventoSendoEditado = null; 
+        let idEventoSendoEditado = null;
+        const previewEventoImagem = document.getElementById('evento-imagem-preview');
+        const inputEventoImagemUpload = document.getElementById('imagem-upload');
+
+        let eventoImagemExistente = null;
+
+        inputEventoImagemUpload.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                renderEventoPreview(URL.createObjectURL(this.files[0]), 'pending');
+            }
+        });
+
+        function renderEventoPreview(src, tipo, publicId) {
+            previewEventoImagem.innerHTML = '';
+            const container = document.createElement('div');
+            container.style.cssText = 'position:relative;display:inline-block;';
+
+            const img = document.createElement('img');
+            img.src = src;
+            img.style.cssText = 'width:120px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #00cec9;';
+            container.appendChild(img);
+
+            const btnX = document.createElement('button');
+            btnX.innerHTML = '&times;';
+            btnX.style.cssText = 'position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;border:none;background:#ff4757;color:#fff;font-size:16px;line-height:24px;text-align:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);z-index:2;';
+            btnX.title = 'Remover imagem';
+            btnX.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (tipo === 'pending') {
+                    URL.revokeObjectURL(src);
+                    inputEventoImagemUpload.value = '';
+                } else {
+                    if (!confirm("Remover esta imagem do Cloudinary?")) return;
+                    if (publicId) {
+                        fetch(`/api/deletar-foto?publicId=${publicId}`).catch(e => console.warn(e));
+                    }
+                    eventoImagemExistente = null;
+                    document.getElementById('imagem').value = '';
+                }
+                previewEventoImagem.innerHTML = '';
+            });
+            container.appendChild(btnX);
+
+            previewEventoImagem.appendChild(container);
+        }
 
         // ==========================================
         // SEGURANÇA: VIGIA SE O USUÁRIO ESTÁ LOGADO
@@ -503,21 +611,23 @@ O pacote ideal para eventos intimistas.
             try {
                 // 1. Verifica se tem um arquivo de imagem selecionado
                 const campoArquivo = document.getElementById('imagem-upload');
-                let linkFinalImagem = document.getElementById('imagem').value; // Pega o link do texto como padrão
+                let linkFinalImagem = document.getElementById('imagem').value;
+                let publicIdFinal = null;
                 
                 if (campoArquivo.files.length > 0) {
+                    if (eventoImagemExistente && eventoImagemExistente.publicId) {
+                        fetch(`/api/deletar-foto?publicId=${eventoImagemExistente.publicId}`).catch(e => console.warn(e));
+                    }
                     btnSubmit.innerText = "ENVIANDO IMAGEM... (1/2)";
                     const arquivo = campoArquivo.files[0];
                     
-                    // Configuração do Cloudinary
-                    const cloudName = "dycwp4ds9"; // Coloque seu Cloud Name aqui
-                    const uploadPreset = "djtonbk";  // Coloque o nome do Preset aqui
+                    const cloudName = "dycwp4ds9";
+                    const uploadPreset = "djtonbk";
                     
                     const formData = new FormData();
                     formData.append('file', arquivo);
                     formData.append('upload_preset', uploadPreset);
                     
-                    // Faz o upload para o Cloudinary
                     const respostaCloudinary = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
                         method: 'POST',
                         body: formData
@@ -525,10 +635,12 @@ O pacote ideal para eventos intimistas.
                     
                     const dadosCloudinary = await respostaCloudinary.json();
                     
-                    // Se o upload deu certo, pega a URL segura que o Cloudinary gerou
                     if (dadosCloudinary.secure_url) {
                         linkFinalImagem = dadosCloudinary.secure_url;
+                        publicIdFinal = dadosCloudinary.public_id;
                     }
+                } else if (eventoImagemExistente && eventoImagemExistente.publicId) {
+                    publicIdFinal = eventoImagemExistente.publicId;
                 }
 
                 btnSubmit.innerText = "SALVANDO EVENTO... (2/2)";
@@ -553,6 +665,7 @@ O pacote ideal para eventos intimistas.
                     imagem: linkFinalImagem,
                     descricao: document.getElementById('descricao').value
                 };
+                if (publicIdFinal) dadosEvento.imagemPublicId = publicIdFinal;
 
                 // 3. Salva no Firebase
                 if (idEventoSendoEditado) {
@@ -585,13 +698,14 @@ O pacote ideal para eventos intimistas.
         });
 
         function resetarFormulario() {
-            formAdmin.reset(); // Limpa os textos
+            formAdmin.reset();
             
-            // Limpa o arquivo de imagem que foi selecionado
             const campoArquivo = document.getElementById('imagem-upload');
             if(campoArquivo) {
                 campoArquivo.value = ''; 
             }
+            previewEventoImagem.innerHTML = '';
+            eventoImagemExistente = null;
             
             idEventoSendoEditado = null;
             tituloForm.innerText = "Adicionar Novo Evento";
@@ -646,7 +760,7 @@ O pacote ideal para eventos intimistas.
                     tituloAtivos.innerText = '📅 PRÓXIMOS EVENTOS';
                     listaAdmin.appendChild(tituloAtivos);
 
-                    ativos.forEach((evento) => {
+                   ativos.forEach((evento) => {
                         const div = document.createElement('div');
                         div.className = 'evento-linha';
                         div.innerHTML = `
@@ -664,8 +778,9 @@ O pacote ideal para eventos intimistas.
                                 data-estado="${evento.estado || ''}"
                                 data-local="${evento.local || ''}"
                                 data-img="${evento.imagem || ''}"
+                                data-publicid="${evento.imagemPublicId || ''}"
                                 data-desc="${evento.descricao}">EDITAR</button>
-                            <button class="btn-apagar" data-id="${evento._id}">APAGAR</button>
+                            <button class="btn-apagar" data-id="${evento._id}" data-publicid="${evento.imagemPublicId || ''}">APAGAR</button>
                         </div>
                     `;
                         listaAdmin.appendChild(div);
@@ -698,18 +813,22 @@ O pacote ideal para eventos intimistas.
                                 data-estado="${evento.estado || ''}"
                                 data-local="${evento.local || ''}"
                                 data-img="${evento.imagem || ''}"
+                                data-publicid="${evento.imagemPublicId || ''}"
                                 data-desc="${evento.descricao}">EDITAR</button>
-                            <button class="btn-apagar" data-id="${evento._id}">APAGAR</button>
+                            <button class="btn-apagar" data-id="${evento._id}" data-publicid="${evento.imagemPublicId || ''}">APAGAR</button>
                         </div>
                     `;
                         listaAdmin.appendChild(div);
                     });
                 }
 
-                // Botão Apagar
                 document.querySelectorAll('.btn-apagar').forEach(botao => {
                     botao.addEventListener('click', async function() {
                         if (confirm("Tem certeza que deseja apagar este evento do site?")) {
+                            const publicId = this.getAttribute('data-publicid');
+                            if (publicId) {
+                                fetch(`/api/deletar-foto?publicId=${publicId}`).catch(e => console.warn(e));
+                            }
                             await deleteDoc(doc(db, "eventos", this.getAttribute('data-id')));
                             mostrarToast('Evento excluído com sucesso!');
                             carregarEventosAdmin(); 
@@ -717,7 +836,6 @@ O pacote ideal para eventos intimistas.
                     });
                 });
 
-                // Botão Editar
                 document.querySelectorAll('.btn-editar').forEach(botao => {
                     botao.addEventListener('click', function() {
                         idEventoSendoEditado = this.getAttribute('data-id');
@@ -728,6 +846,13 @@ O pacote ideal para eventos intimistas.
                         document.getElementById('estado').value = this.getAttribute('data-estado');
                         document.getElementById('imagem').value = this.getAttribute('data-img');
                         document.getElementById('descricao').value = this.getAttribute('data-desc');
+
+                        const imgSrc = this.getAttribute('data-img');
+                        const imgPublicId = this.getAttribute('data-publicid');
+                        if (imgSrc) {
+                            eventoImagemExistente = { url: imgSrc, publicId: imgPublicId };
+                            renderEventoPreview(imgSrc, 'existente', imgPublicId);
+                        }
                         
                         tituloForm.innerText = "Editando Evento";
                         btnSubmit.innerText = "ATUALIZAR EVENTO NO SITE";
@@ -796,8 +921,188 @@ O pacote ideal para eventos intimistas.
         const btnCancelarServico = document.getElementById('btn-cancelar-servico');
         const tituloFormServico = document.getElementById('titulo-form-servico');
         const listaServicosAdmin = document.getElementById('lista-servicos-admin');
+        const previewServicoImagem = document.getElementById('servico-imagem-preview');
+        const inputServicoImagemUpload = document.getElementById('servico-imagem-upload');
 
         let idServicoSendoEditado = null;
+        let servicoImagemExistente = null;
+        let servicoImagemPosition = '50% 50%';
+
+        inputServicoImagemUpload.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                renderServicoPreview(URL.createObjectURL(this.files[0]), 'pending');
+            }
+        });
+
+        function renderServicoPreview(src, tipo, publicId) {
+            previewServicoImagem.innerHTML = '';
+
+            const wrapper = document.createElement('div');
+                        wrapper.className = 'servico-preview-wrapper';
+
+            const thumbCol = document.createElement('div');
+            thumbCol.style.cssText = 'position:relative;flex-shrink:0;width:120px;height:80px;';
+
+            const img = document.createElement('img');
+            img.src = src;
+            img.style.cssText = 'width:120px;height:80px;object-fit:cover;border-radius:10px;border:1px solid rgba(0,206,201,0.3);display:block;';
+            thumbCol.appendChild(img);
+
+            const btnX = document.createElement('button');
+            btnX.innerHTML = '&times;';
+            btnX.style.cssText = 'position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:none;background:#ff4757;color:#fff;font-size:14px;line-height:22px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(255,71,87,0.4);z-index:2;transition:transform 0.2s;';
+            btnX.title = 'Remover imagem';
+            btnX.addEventListener('mouseenter', function() { this.style.transform = 'scale(1.15)'; });
+            btnX.addEventListener('mouseleave', function() { this.style.transform = 'scale(1)'; });
+            btnX.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (tipo === 'pending') {
+                    URL.revokeObjectURL(src);
+                    inputServicoImagemUpload.value = '';
+                } else {
+                    if (!confirm("Remover esta imagem do Cloudinary?")) return;
+                    if (publicId) {
+                        fetch(`/api/deletar-foto?publicId=${publicId}`).catch(e => console.warn(e));
+                    }
+                    servicoImagemExistente = null;
+                    document.getElementById('servico-imagem').value = '';
+                }
+                previewServicoImagem.innerHTML = '';
+            });
+            thumbCol.appendChild(btnX);
+            wrapper.appendChild(thumbCol);
+
+            const trackCol = document.createElement('div');
+            trackCol.style.cssText = 'display:flex;align-items:center;gap:12px;flex:1;min-width:0;';
+
+            const track = document.createElement('div');
+            track.style.cssText = 'position:relative;width:120px;height:80px;border-radius:10px;overflow:hidden;cursor:grab;border:1px solid rgba(255,255,255,0.08);flex-shrink:0;background:#1a1a1a;';
+
+            const trackImg = document.createElement('img');
+            trackImg.src = src;
+            trackImg.style.cssText = 'width:100%;height:100%;object-fit:cover;pointer-events:none;';
+            trackImg.style.objectPosition = servicoImagemPosition;
+            track.appendChild(trackImg);
+
+            const handle = document.createElement('div');
+            handle.style.cssText = 'position:absolute;width:20px;height:20px;border:2px solid #00cec9;border-radius:50%;background:rgba(0,206,201,0.25);pointer-events:none;box-shadow:0 0 10px rgba(0,206,201,0.3);';
+            const initX = parseFloat(servicoImagemPosition) || 50;
+            const initY = parseFloat(servicoImagemPosition.split(' ')[1]) || 50;
+            handle.style.left = initX + '%';
+            handle.style.top = (100 - initY) + '%';
+            handle.style.transform = 'translate(-50%,-50%)';
+            track.appendChild(handle);
+
+            let dragging = false;
+            track.addEventListener('mousedown', function(e) { dragging = true; e.preventDefault(); });
+            track.addEventListener('touchstart', function() { dragging = true; }, { passive: true });
+            document.addEventListener('mouseup', function() { dragging = false; });
+            document.addEventListener('touchend', function() { dragging = false; });
+
+            const previewModalCard = document.getElementById('servico-crop-modal-img');
+
+            function updatePosition(e) {
+                if (!dragging) return;
+                const rect = track.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                let x = ((clientX - rect.left) / rect.width) * 100;
+                let y = 100 - (((clientY - rect.top) / rect.height) * 100);
+                x = Math.max(0, Math.min(100, x));
+                y = Math.max(0, Math.min(100, y));
+                servicoImagemPosition = x.toFixed(0) + '% ' + y.toFixed(0) + '%';
+                trackImg.style.objectPosition = servicoImagemPosition;
+                handle.style.left = x + '%';
+                handle.style.top = (100 - y) + '%';
+                if (previewModalCard) previewModalCard.style.backgroundPosition = servicoImagemPosition;
+            }
+            document.addEventListener('mousemove', updatePosition);
+            document.addEventListener('touchmove', updatePosition, { passive: true });
+
+            trackCol.appendChild(track);
+
+            const btnPreview = document.createElement('button');
+            btnPreview.type = 'button';
+            btnPreview.innerHTML = '&#128065; Ver no Card';
+            btnPreview.style.cssText = 'padding:10px 16px;background:rgba(0,206,201,0.08);color:#00cec9;border:1px solid rgba(0,206,201,0.2);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;font-family:Poppins,sans-serif;transition:all 0.25s ease;white-space:nowrap;';
+            btnPreview.addEventListener('mouseenter', function() { this.style.background = 'rgba(0,206,201,0.15)'; this.style.borderColor = 'rgba(0,206,201,0.4)'; });
+            btnPreview.addEventListener('mouseleave', function() { this.style.background = 'rgba(0,206,201,0.08)'; this.style.borderColor = 'rgba(0,206,201,0.2)'; });
+            btnPreview.addEventListener('click', function() {
+                showServicoCardPreviewModal(src);
+            });
+            trackCol.appendChild(btnPreview);
+
+            wrapper.appendChild(trackCol);
+            previewServicoImagem.appendChild(wrapper);
+        }
+
+        function showServicoCardPreviewModal(src) {
+            let overlay = document.getElementById('servico-crop-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'servico-crop-overlay';
+                overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;';
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) overlay.style.display = 'none';
+                });
+                document.body.appendChild(overlay);
+            }
+            overlay.innerHTML = '';
+            overlay.style.display = 'flex';
+
+            const hint = document.createElement('p');
+            hint.style.cssText = 'color:#666;font-size:12px;margin:0;text-align:center;letter-spacing:0.5px;';
+            hint.textContent = 'Arraste dentro do card pra ajustar o corte \u2022 Clique fora pra fechar';
+            overlay.appendChild(hint);
+
+            const card = document.createElement('div');
+            card.style.cssText = 'width:320px;background:linear-gradient(145deg,#1a1a1a,#0d2b28);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);box-shadow:0 25px 60px rgba(0,0,0,0.6);cursor:grab;user-select:none;';
+
+            const cardImg = document.createElement('div');
+            cardImg.id = 'servico-crop-modal-img';
+            cardImg.style.cssText = 'height:140px;background-color:#1a1a1a;background-size:cover;position:relative;overflow:hidden;';
+            cardImg.style.backgroundImage = `url('${src}')`;
+            cardImg.style.backgroundPosition = servicoImagemPosition;
+
+            const gradOverlay = document.createElement('div');
+            gradOverlay.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(to top,#0d2b28,transparent);pointer-events:none;';
+            cardImg.appendChild(gradOverlay);
+
+            card.appendChild(cardImg);
+
+            const cardContent = document.createElement('div');
+            cardContent.style.cssText = 'padding:18px 20px;text-align:center;';
+            cardContent.innerHTML = '<span style="font-size:9px;font-weight:600;color:#00cec9;letter-spacing:2px;text-transform:uppercase;">CATEGORIA</span><h3 style="font-size:15px;color:#fff;margin:6px 0 4px;font-family:Poppins,sans-serif;">Nome do Servi\u00e7o</h3><span style="font-size:16px;font-weight:700;color:#00cec9;">A partir de R$ 1.500</span>';
+            card.appendChild(cardContent);
+
+            overlay.appendChild(card);
+
+            let modalDragging = false;
+            cardImg.addEventListener('mousedown', function(e) { modalDragging = true; e.preventDefault(); });
+            cardImg.addEventListener('touchstart', function() { modalDragging = true; }, { passive: true });
+            document.addEventListener('mouseup', function() { modalDragging = false; });
+            document.addEventListener('touchend', function() { modalDragging = false; });
+
+            function updateModalPosition(e) {
+                if (!modalDragging) return;
+                const rect = cardImg.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                let x = ((clientX - rect.left) / rect.width) * 100;
+                let y = 100 - (((clientY - rect.top) / rect.height) * 100);
+                x = Math.max(0, Math.min(100, x));
+                y = Math.max(0, Math.min(100, y));
+                servicoImagemPosition = x.toFixed(0) + '% ' + y.toFixed(0) + '%';
+                cardImg.style.backgroundPosition = servicoImagemPosition;
+
+                const trackImg = previewServicoImagem.querySelector('img');
+                if (trackImg) trackImg.style.objectPosition = servicoImagemPosition;
+                const handle = previewServicoImagem.querySelector('div[style*="border-radius:50%"]');
+                if (handle) { handle.style.left = x + '%'; handle.style.top = (100 - y) + '%'; }
+            }
+            document.addEventListener('mousemove', updateModalPosition);
+            document.addEventListener('touchmove', updateModalPosition, { passive: true });
+        }
 
         // FORMATA PREÇO AUTOMATICAMENTE (BR: 1.500,00)
         document.getElementById('servico-preco').addEventListener('input', function() {
@@ -822,8 +1127,12 @@ O pacote ideal para eventos intimistas.
             try {
                 const campoArquivo = document.getElementById('servico-imagem-upload');
                 let linkFinalImagem = document.getElementById('servico-imagem').value;
+                let publicIdFinal = null;
 
                 if (campoArquivo.files.length > 0) {
+                    if (servicoImagemExistente && servicoImagemExistente.publicId) {
+                        fetch(`/api/deletar-foto?publicId=${servicoImagemExistente.publicId}`).catch(e => console.warn(e));
+                    }
                     btnSubmitServico.innerText = "ENVIANDO IMAGEM... (1/2)";
                     const arquivo = campoArquivo.files[0];
                     const cloudName = "dycwp4ds9";
@@ -842,7 +1151,10 @@ O pacote ideal para eventos intimistas.
 
                     if (dadosCloudinary.secure_url) {
                         linkFinalImagem = dadosCloudinary.secure_url;
+                        publicIdFinal = dadosCloudinary.public_id;
                     }
+                } else if (servicoImagemExistente && servicoImagemExistente.publicId) {
+                    publicIdFinal = servicoImagemExistente.publicId;
                 }
 
                 btnSubmitServico.innerText = "SALVANDO SERVIÇO... (2/2)";
@@ -852,8 +1164,10 @@ O pacote ideal para eventos intimistas.
                     categoria: document.getElementById('servico-categoria').value,
                     preco: document.getElementById('servico-preco').value,
                     imagem: linkFinalImagem,
+                    imagemPosition: servicoImagemPosition,
                     descricao: document.getElementById('servico-descricao').value
                 };
+                if (publicIdFinal) dadosServico.imagemPublicId = publicIdFinal;
 
                 if (idServicoSendoEditado) {
                     await updateDoc(doc(db, "servicos", idServicoSendoEditado), dadosServico);
@@ -886,6 +1200,9 @@ O pacote ideal para eventos intimistas.
             if(campoArquivo) {
                 campoArquivo.value = '';
             }
+            previewServicoImagem.innerHTML = '';
+            servicoImagemExistente = null;
+            servicoImagemPosition = '50% 50%';
             idServicoSendoEditado = null;
             tituloFormServico.innerText = "Adicionar Novo Serviço";
             btnSubmitServico.innerText = "SALVAR SERVIÇO NO SITE";
@@ -921,8 +1238,10 @@ O pacote ideal para eventos intimistas.
                                 data-categoria="${servico.categoria || ''}"
                                 data-preco="${servico.preco || ''}"
                                 data-img="${servico.imagem || ''}"
+                                data-publicid="${servico.imagemPublicId || ''}"
+                                data-position="${servico.imagemPosition || '50% 50%'}"
                                 data-desc="${servico.descricao}">EDITAR</button>
-                            <button class="btn-apagar" data-id="${idDoServico}">APAGAR</button>
+                            <button class="btn-apagar" data-id="${idDoServico}" data-publicid="${servico.imagemPublicId || ''}">APAGAR</button>
                         </div>
                     `;
                     listaServicosAdmin.appendChild(div);
@@ -932,6 +1251,10 @@ O pacote ideal para eventos intimistas.
                 document.querySelectorAll('#lista-servicos-admin .btn-apagar').forEach(botao => {
                     botao.addEventListener('click', async function() {
                         if (confirm("Tem certeza que deseja apagar este serviço do site?")) {
+                            const publicId = this.getAttribute('data-publicid');
+                            if (publicId) {
+                                fetch(`/api/deletar-foto?publicId=${publicId}`).catch(e => console.warn(e));
+                            }
                             await deleteDoc(doc(db, "servicos", this.getAttribute('data-id')));
                             mostrarToast('Serviço excluído com sucesso!');
                             carregarServicosAdmin();
@@ -948,6 +1271,14 @@ O pacote ideal para eventos intimistas.
                         document.getElementById('servico-preco').value = (this.getAttribute('data-preco') || '').replace('A partir de R$ ', '');
                         document.getElementById('servico-imagem').value = this.getAttribute('data-img');
                         document.getElementById('servico-descricao').value = this.getAttribute('data-desc');
+
+                        const imgSrc = this.getAttribute('data-img');
+                        const imgPublicId = this.getAttribute('data-publicid');
+                        servicoImagemPosition = this.getAttribute('data-position') || '50% 50%';
+                        if (imgSrc) {
+                            servicoImagemExistente = { url: imgSrc, publicId: imgPublicId };
+                            renderServicoPreview(imgSrc, 'existente', imgPublicId);
+                        }
 
                         tituloFormServico.innerText = "Editando Serviço";
                         btnSubmitServico.innerText = "ATUALIZAR SERVIÇO NO SITE";

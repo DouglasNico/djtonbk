@@ -50,7 +50,7 @@
     <script type="application/ld+json" id="jsonld-eventos">
     {"@context":"https://schema.org","@graph":[]}
     </script>
-    <link rel="stylesheet" href="./css/style.css?v=38">
+    <link rel="stylesheet" href="./css/style.css?v=41">
 </head>
 <body>
 
@@ -424,7 +424,7 @@
             const itensHtml = itens.slice(0, 4).map(i => `<li>${i}</li>`).join('');
             return `
             <div class="card reveal${delayClass}">
-                <div class="card-image" style="background-image: url('${servico.imagem || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=500&q=60'}');"></div>
+                <div class="card-image" style="background-image: url('${servico.imagem || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=500&q=60'}'); background-position: ${servico.imagemPosition || '50% 50%'};"></div>
                 ${servico.categoria ? `<span class="card-categoria">${servico.categoria}</span>` : ''}
                 <div class="card-content">
                     <h3>${servico.nome}</h3>
@@ -436,6 +436,7 @@
                         data-categoria="${servico.categoria || ''}"
                         data-preco="${servico.preco || ''}"
                         data-img="${servico.imagem || ''}"
+                        data-position="${servico.imagemPosition || '50% 50%'}"
                         data-desc="${servico.descricao || ''}">VER PACOTE</button>
                 </div>
             </div>`;
@@ -492,7 +493,9 @@
                     document.getElementById('modal-servico-categoria').textContent = this.getAttribute('data-categoria') || 'PACOTE';
                     document.getElementById('modal-servico-preco').textContent = this.getAttribute('data-preco') ? `A partir de R$ ${this.getAttribute('data-preco')}` : '';
                     const imgUrl = this.getAttribute('data-img');
+                    const imgPosition = this.getAttribute('data-position') || '50% 50%';
                     document.getElementById('modal-servico-img').style.backgroundImage = `url('${imgUrl || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80'}')`;
+                    document.getElementById('modal-servico-img').style.backgroundPosition = imgPosition;
                     const desc = this.getAttribute('data-desc') || '';
                     const { intro, itens } = parseItens(desc);
                     document.getElementById('modal-servico-desc').textContent = intro || desc;
@@ -784,7 +787,6 @@
             if (galeriaLightbox.dataset.sourceModal === 'true') {
                 galeriaLightbox.dataset.sourceModal = '';
                 modalGaleria.classList.add('ativo');
-                document.querySelector('.modal-galeria-scroll').scrollTop = 0;
                 lockScroll();
             }
         }
@@ -792,6 +794,8 @@
         function navegarGaleria(dir) {
             const total = galeriaFotosAtuais.length;
             if (total === 0) return;
+            const oldImg = getCurrentSlideImg();
+            if (oldImg) { oldImg.style.transition = 'transform 0.2s ease'; oldImg.style.transform = 'scale(1)'; }
             const novoIndex = galeriaIndex + dir;
             if (novoIndex < 0 || novoIndex >= total) return;
             galeriaIndex = novoIndex;
@@ -839,22 +843,69 @@
 
         // Touch swipe
         let touchStartX = 0, touchCurrentX = 0, isDragging = false, dragStartTranslate = 0;
+        let pinchStartDist = 0, pinchScale = 1, isPinching = false;
+
+        function getPinchDist(e) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function getCurrentSlideImg() {
+            const slides = galeriaTrack.querySelectorAll('.galeria-slide');
+            return slides[galeriaIndex] ? slides[galeriaIndex].querySelector('img') : null;
+        }
+
         galeriaLightbox.addEventListener('touchstart', function(e) {
             if (e.target.closest('.galeria-nav') || e.target.closest('.zoom-fechar') || e.target.closest('.galeria-dots')) return;
+            if (e.touches.length === 2) {
+                isPinching = true;
+                isDragging = false;
+                pinchStartDist = getPinchDist(e);
+                const img = getCurrentSlideImg();
+                if (img) pinchScale = parseFloat(img.style.transform.replace('scale(', '').replace(')', '')) || 1;
+                return;
+            }
             touchStartX = e.changedTouches[0].screenX;
             touchCurrentX = touchStartX;
             isDragging = true;
             galeriaTrack.style.transition = 'none';
             dragStartTranslate = -galeriaIndex * 100;
         }, { passive: true });
+
         galeriaLightbox.addEventListener('touchmove', function(e) {
+            if (isPinching && e.touches.length === 2) {
+                e.preventDefault();
+                const dist = getPinchDist(e);
+                const newScale = Math.max(1, Math.min(4, pinchScale * (dist / pinchStartDist)));
+                const img = getCurrentSlideImg();
+                if (img) {
+                    img.style.transform = `scale(${newScale})`;
+                    img.style.transition = 'none';
+                    img.style.transformOrigin = 'center center';
+                }
+                return;
+            }
             if (!isDragging) return;
             touchCurrentX = e.changedTouches[0].screenX;
             const diff = touchCurrentX - touchStartX;
             const movePct = (diff / galeriaTrack.parentElement.offsetWidth) * 100;
             galeriaTrack.style.transform = `translateX(${dragStartTranslate + movePct}%)`;
-        }, { passive: true });
+        }, { passive: false });
+
         galeriaLightbox.addEventListener('touchend', function(e) {
+            if (isPinching) {
+                isPinching = false;
+                const img = getCurrentSlideImg();
+                if (img) {
+                    const currentScale = parseFloat(img.style.transform.replace('scale(', '').replace(')', '')) || 1;
+                    if (currentScale < 1.1) {
+                        img.style.transition = 'transform 0.3s ease';
+                        img.style.transform = 'scale(1)';
+                    }
+                }
+                return;
+            }
             if (!isDragging) return;
             isDragging = false;
             galeriaTrack.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
