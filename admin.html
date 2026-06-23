@@ -663,9 +663,9 @@ O pacote ideal para eventos intimistas.
                     estado: estado,
                     local: `${cidade}, ${estado}`,
                     imagem: linkFinalImagem,
+                    imagemPublicId: publicIdFinal || '',
                     descricao: document.getElementById('descricao').value
                 };
-                if (publicIdFinal) dadosEvento.imagemPublicId = publicIdFinal;
 
                 // 3. Salva no Firebase
                 if (idEventoSendoEditado) {
@@ -1165,9 +1165,9 @@ O pacote ideal para eventos intimistas.
                     preco: document.getElementById('servico-preco').value,
                     imagem: linkFinalImagem,
                     imagemPosition: servicoImagemPosition,
+                    imagemPublicId: publicIdFinal || '',
                     descricao: document.getElementById('servico-descricao').value
                 };
-                if (publicIdFinal) dadosServico.imagemPublicId = publicIdFinal;
 
                 if (idServicoSendoEditado) {
                     await updateDoc(doc(db, "servicos", idServicoSendoEditado), dadosServico);
