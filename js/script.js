@@ -1,13 +1,12 @@
 // ==========================================
-// SCROLL REVEAL (Animações ao rolar)
+// SCROLL REVEAL
 // ==========================================
 function revelarAoRolar() {
     const reveals = document.querySelectorAll('.reveal');
     reveals.forEach(el => {
         const windowHeight = window.innerHeight;
         const elementTop = el.getBoundingClientRect().top;
-        const revealPoint = 100;
-        if (elementTop < windowHeight - revealPoint) {
+        if (elementTop < windowHeight - 100) {
             el.classList.add('ativo');
         }
     });
@@ -17,7 +16,7 @@ window.addEventListener('scroll', revelarAoRolar);
 window.addEventListener('load', revelarAoRolar);
 
 // ==========================================
-// NAVBAR SHRINK (Encolhe ao rolar)
+// NAVBAR SHRINK
 // ==========================================
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
@@ -29,7 +28,7 @@ window.addEventListener('scroll', () => {
 });
 
 // ==========================================
-// 1. ROLAGEM SUAVE (Menu e Botões)
+// ROLAGEM SUAVE
 // ==========================================
 const menuLinks = document.querySelectorAll('.nav-links a, .logo-link, a.btn[href^="#"]');
 
@@ -58,10 +57,8 @@ menuLinks.forEach(link => {
     });
 });
 
-
-
 // ==========================================
-// MENU HAMBURGUER (MOBILE DRAWER)
+// MENU HAMBURGUER
 // ==========================================
 const menuToggle = document.getElementById('menu-toggle');
 const navLinksContainer = document.querySelector('.nav-links');
@@ -86,14 +83,10 @@ menuToggle.addEventListener('click', function() {
     }
 });
 
-// Fecha o drawer ao clicar em qualquer link dentro dele
 document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        fecharMenu();
-    });
+    link.addEventListener('click', () => fecharMenu());
 });
 
-// Fecha ao clicar fora do drawer (no fundo escuro)
 document.addEventListener('click', function(e) {
     if (!navLinksContainer.classList.contains('ativo')) return;
     if (!navLinksContainer.contains(e.target) && e.target !== menuToggle && !menuToggle.contains(e.target)) {
@@ -102,7 +95,7 @@ document.addEventListener('click', function(e) {
 });
 
 // ==========================================
-// ACTIVE SECTION TRACKING (Scroll)
+// ACTIVE SECTION TRACKING
 // ==========================================
 const sections = document.querySelectorAll('section[id], header[id]');
 const navAnchors = document.querySelectorAll('.nav-links a');
@@ -110,7 +103,6 @@ const navAnchors = document.querySelectorAll('.nav-links a');
 function atualizarActiveLink() {
     let current = '';
     const scrollPos = window.scrollY + 120;
-
     sections.forEach(section => {
         const top = section.offsetTop;
         const height = section.offsetHeight;
@@ -118,7 +110,6 @@ function atualizarActiveLink() {
             current = section.getAttribute('id');
         }
     });
-
     navAnchors.forEach(a => {
         a.classList.remove('active');
         if (a.getAttribute('href') === '#' + current) {
@@ -132,7 +123,7 @@ window.addEventListener('scroll', atualizarActiveLink);
 window.addEventListener('load', atualizarActiveLink);
 
 // ==========================================
-// ACTIVE NAV INDICATOR (sliding pill)
+// ACTIVE NAV INDICATOR
 // ==========================================
 const navIndicator = document.createElement('div');
 navIndicator.className = 'nav-indicator';
@@ -169,100 +160,145 @@ window.addEventListener('scroll', atualizarScrollProgress);
 window.addEventListener('resize', atualizarScrollProgress);
 window.addEventListener('load', atualizarScrollProgress);
 
-
 // ==========================================
-// 3. MÁSCARA DO TELEFONE (Formatação automática)
+// MASCARA TELEFONE
 // ==========================================
 document.getElementById('telefone').addEventListener('input', function (e) {
-    // Remove tudo que não é número
     let numero = e.target.value.replace(/\D/g, '');
-    
-    // Aplica a formatação de acordo com a quantidade de números digitados
     let formatado = numero.replace(/^(\d{2})(\d)/g, '($1) $2');
     formatado = formatado.replace(/(\d)(\d{4})$/, '$1-$2');
-    
-    // Devolve o valor formatado para o campo
     e.target.value = formatado;
 });
 
 // ==========================================
-// 4. WHATSAPP FORMULÁRIO CONTATO
+// WHATSAPP FORMULARIO
 // ==========================================
 document.getElementById("form-contato").addEventListener("submit", function(e) {
-    // Impede a página de recarregar
     e.preventDefault();
-
-    // Pega os valores digitados
     const nome = document.getElementById("nome").value;
     const email = document.getElementById("email").value;
-    const telefone = document.getElementById("telefone").value; 
+    const telefone = document.getElementById("telefone").value;
     const assunto = document.getElementById("assunto").value;
     const mensagem = document.getElementById("mensagem").value;
-
-    const numeroZap = "5519989632127"; // Seu número configurado
-
-    // Monta o texto para o WhatsApp
-    const texto = 
-`Olá! Me chamo ${nome}.
-
-*=== DETALHES DO CONTATO ===*
-E-mail: ${email}
-Telefone: ${telefone}
-Assunto: ${assunto}
-
-*=== MENSAGEM ===*
-${mensagem}`;
-
-    // Converte o texto para formato de link
+    const numeroZap = "5519989632127";
+    const texto = `Ola! Me chamo ${nome}.\n\n*=== DETALHES DO CONTATO ===*\nE-mail: ${email}\nTelefone: ${telefone}\nAssunto: ${assunto}\n\n*=== MENSAGEM ===*\n${mensagem}`;
     const msgFormatada = encodeURIComponent(texto);
-
-    // Cria o link e abre uma nova aba no navegador
     const url = `https://wa.me/${numeroZap}?text=${msgFormatada}`;
     window.open(url, "_blank");
 });
 
-
-
-
-
-
 // ==========================================
-// PARTÍCULAS DE FUNDO
+// CANVAS PARTICLES POR SECTION
 // ==========================================
-function criarParticulas() {
-    const container = document.querySelector('.site-particles');
-    if (!container) return;
-    const qtd = window.innerWidth < 768 ? 25 : 45;
-    for (let i = 0; i < qtd; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        const size = 2 + Math.random() * 5;
-        p.style.left = Math.random() * 100 + '%';
-        p.style.width = size + 'px';
-        p.style.height = size + 'px';
-        p.style.animationDuration = (6 + Math.random() * 10) + 's';
-        p.style.animationDelay = (Math.random() * 3) + 's';
-        p.style.opacity = 0.3 + Math.random() * 0.5;
-        container.appendChild(p);
+function initSectionParticles(canvas) {
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
     }
+
+    class Dot {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 0.5;
+            this.vx = (Math.random() - 0.5) * 0.4;
+            this.vy = (Math.random() - 0.5) * 0.4;
+            this.opacity = Math.random() * 0.4 + 0.15;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = '#00cec9';
+            ctx.globalAlpha = this.opacity;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    function init() {
+        particles = [];
+        const count = Math.min(60, Math.floor((canvas.width * canvas.height) / 20000));
+        for (let i = 0; i < count; i++) particles.push(new Dot());
+    }
+
+    function connect() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 140) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#00cec9';
+                    ctx.globalAlpha = 0.08 * (1 - dist / 140);
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                }
+            }
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        connect();
+        requestAnimationFrame(animate);
+    }
+
+    resize();
+    init();
+    animate();
 }
 
+document.querySelectorAll('.section-canvas').forEach(canvas => {
+    initSectionParticles(canvas);
+});
+
 // ==========================================
-// EQUALIZER BARS
+// COUNTER ANIMATION
 // ==========================================
-function criarEqualizer() {
-    const container = document.querySelector('.hero-equalizer');
-    if (!container) return;
-    const qtd = window.innerWidth < 768 ? 20 : 40;
-    for (let i = 0; i < qtd; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'eq-bar';
-        bar.style.animationDuration = (0.8 + Math.random() * 1.5) + 's';
-        bar.style.animationDelay = (Math.random() * 3) + 's';
-        container.appendChild(bar);
+(function() {
+    const counters = document.querySelectorAll('.counter');
+    if (!counters.length) return;
+
+    function animateCounter(el) {
+        const target = parseInt(el.getAttribute('data-target'));
+        const suffix = el.getAttribute('data-suffix') || '';
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        let current = 0;
+
+        function step() {
+            current += increment;
+            if (current < target) {
+                el.textContent = Math.floor(current) + suffix;
+                requestAnimationFrame(step);
+            } else {
+                el.textContent = target + suffix;
+            }
+        }
+        step();
     }
-}
 
-criarParticulas();
-criarEqualizer();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
 
+    counters.forEach(c => observer.observe(c));
+})();
