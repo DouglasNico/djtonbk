@@ -1607,55 +1607,60 @@ section[id], header[id] { scroll-margin-top: 0; }
     .nav-links { gap: 20px; }
     .nav-links a { font-size: 12px; letter-spacing: 1.5px; }
     .logo-img { max-height: 30px; }
-    .hero h1 { font-size: 42px; }
-    .hero p { font-size: 15px; }
+    .hero h1 { font-size: 38px; }
+    .hero p { font-size: 14px; }
     .hero-badge { font-size: 10px; padding: 4px 14px; letter-spacing: 3px; }
     .hero-actions { gap: 12px; }
-    .hero-stats { gap: 30px; }
-    .hero-stat-num { font-size: 22px; }
-    .hero-stat-num.counter { font-size: 28px; }
-    .hero-stat-label { font-size: 9px; letter-spacing: 2px; }
-    .services-section { padding: 70px 30px; }
-    .sobre-section { padding: 70px 30px; }
-    .agenda-section { padding: 70px 30px; }
-    .container-titulo h2 { font-size: 34px; }
-    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
-    .card-image { height: 130px; }
-    .card-content { padding: 14px 16px; }
-    .card-content h3 { font-size: 14px; margin-bottom: 8px; }
-    .card-categoria { font-size: 10px; margin-bottom: 6px; }
-    .card-preco { font-size: 16px; margin-bottom: 8px; }
-    .card-descricao { font-size: 11px; margin-bottom: 10px; }
-    .card-itens li { font-size: 11px; padding: 4px 0 4px 18px; }
-    .galeria-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .galeria-section { padding: 70px 30px; }
-    .contato-section { padding: 70px 30px; }
-    .contato-container { padding: 30px; max-width: 480px; }
-    .contato-form input, .contato-form select, .contato-form textarea { padding: 12px 14px; font-size: 13px; }
-    #modal-evento .modal-painel { height: 520px; }
-    .modal-presskit-header { padding: 30px 24px 14px; }
-    .modal-presskit-header h2 { font-size: 22px; }
-    .modal-presskit-btn { padding: 12px 18px; font-size: 12px; }
-}
-
-@media (max-width: 900px) {
-    .services-section { padding: 60px 20px; }
-    .sobre-section { padding: 60px 20px; }
-    .agenda-section { padding: 60px 20px; }
-    .galeria-section { padding: 60px 20px; }
-    .contato-section { padding: 60px 20px; }
-    .contato-container { padding: 24px 20px; max-width: 420px; }
-    .cards-grid { gap: 14px; }
-    .card-image { height: 120px; }
-    .card-content { padding: 12px 14px; }
-    .card-content h3 { font-size: 13px; }
-    .card-preco { font-size: 15px; }
-    .hero h1 { font-size: 36px; }
     .hero-stats { gap: 24px; }
     .hero-stat-num { font-size: 20px; }
     .hero-stat-num.counter { font-size: 24px; }
-    .container-titulo { margin-bottom: 35px; }
+    .hero-stat-label { font-size: 9px; letter-spacing: 2px; }
+    .services-section { padding: 60px 24px; }
+    .sobre-section { padding: 60px 24px; }
+    .agenda-section { padding: 60px 24px; }
     .container-titulo h2 { font-size: 30px; }
+    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .card-image { height: 110px; }
+    .card-content { padding: 12px 14px; }
+    .card-content h3 { font-size: 13px; margin-bottom: 6px; }
+    .card-categoria { font-size: 9px; margin-bottom: 4px; letter-spacing: 1.5px; }
+    .card-preco { font-size: 14px; margin-bottom: 6px; }
+    .card-descricao { font-size: 11px; margin-bottom: 8px; line-height: 1.4; }
+    .card-itens li { font-size: 10px; padding: 3px 0 3px 16px; }
+    .card-itens-mais { font-size: 10px !important; }
+    .galeria-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .galeria-section { padding: 60px 24px; }
+    .contato-section { padding: 60px 24px; }
+    .contato-container { padding: 24px; max-width: 420px; }
+    .contato-form { gap: 14px; }
+    .contato-form input, .contato-form select, .contato-form textarea { padding: 10px 12px; font-size: 12px; }
+    .btn-enviar { font-size: 12px; padding: 10px; }
+    #modal-evento .modal-painel { height: 520px; }
+    .modal-presskit-header { padding: 24px 20px 12px; }
+    .modal-presskit-header h2 { font-size: 20px; }
+    .modal-presskit-btn { padding: 10px 16px; font-size: 11px; }
+}
+
+@media (max-width: 900px) {
+    .services-section { padding: 50px 16px; }
+    .sobre-section { padding: 50px 16px; }
+    .agenda-section { padding: 50px 16px; }
+    .galeria-section { padding: 50px 16px; }
+    .contato-section { padding: 50px 16px; }
+    .contato-container { padding: 20px 16px; max-width: 380px; }
+    .cards-grid { gap: 12px; }
+    .card-image { height: 100px; }
+    .card-content { padding: 10px 12px; }
+    .card-content h3 { font-size: 12px; }
+    .card-preco { font-size: 13px; }
+    .card-descricao { font-size: 10px; }
+    .card-itens li { font-size: 9px; }
+    .hero h1 { font-size: 32px; }
+    .hero-stats { gap: 20px; }
+    .hero-stat-num { font-size: 18px; }
+    .hero-stat-num.counter { font-size: 22px; }
+    .container-titulo { margin-bottom: 30px; }
+    .container-titulo h2 { font-size: 26px; }
 }
 
 @media (max-width: 768px) {
