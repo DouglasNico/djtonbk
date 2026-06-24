@@ -5,15 +5,17 @@
 - Firebase Firestore (banco de dados)
 - Firebase Auth (login admin)
 - Cloudinary (upload de imagens)
-- Firebase Hosting
+- Vercel (hosting + API serverless para delete Cloudinary)
 
 ## Estrutura de Arquivos
 ```
 /
-├── index.html          → Site principal (~1160 linhas)
-├── admin.html          → Painel administrativo
-├── css/style.css       → Todos os estilos (~2985 linhas)
-├── js/script.js        → Scroll reveal, navbar, hamburger, partículas, equalizer (~256 linhas)
+├── index.html          → Site principal (~1006 linhas)
+├── admin.html          → Painel administrativo (~1613 linhas)
+├── css/style.css       → Todos os estilos (~1829 linhas)
+├── js/script.js        → Scroll reveal, navbar, hamburger, partículas, equalizer (~272 linhas)
+├── api/deletar-foto.js → Serverless function para delete no Cloudinary
+├── vercel.json         → Configuração de rewrites (API + SPA)
 ├── img/                → Imagens (logo, capa-video.jpg)
 ├── backup/             → Cópia do site original (referência visual)
 ├── favicon.svg
@@ -84,6 +86,7 @@
 - Modal com header gradiente + fundo escuro
 - Preço formatado como moeda BR
 - Ordenados por preço (mais barato primeiro)
+- **Imagem com `object-position` configurável** (crop position salvo no admin)
 - **Dados em tempo real via `onSnapshot`** — alterações no Firestore refletem automaticamente
 
 #### Agenda (Firestore) — Tempo Real
@@ -93,6 +96,7 @@
 - Eventos passados somem do site
 - Ordenados por data crescente
 - Modal premium: flyer com glow, fundo blur, status tag, zoom na imagem
+- **Pinch-to-zoom** no flyer da agenda (1x a 4x, reseta ao fechar)
 - **Dados em tempo real via `onSnapshot`**
 
 #### Galeria (Firestore) — Tempo Real
@@ -114,7 +118,9 @@
   - Clique **na** foto → não fecha
   - Cursor: `default` na foto, `zoom-out` no fundo (mostra que fecha)
   - Touch exclui nav/close/dots para não atrapalhar swipe
+  - **Pinch-to-zoom**: 2 dedos fazem zoom (1x a 4x), reseta ao navegar
 - Lightbox aberta do VER MAIS: ao fechar (X, ESC, clique fora), **retorna ao modal**
+- **Posição do scroll preservada**: ao abrir foto e fechar, mantém posição no modal
 - **Dados em tempo real via `onSnapshot`**
 
 #### Seção Sobre
@@ -133,7 +139,7 @@
 - Logo + links + direitos reservados
 
 #### Cache Busting
-- CSS link usa query string `?v=N` (ex: `style.css?v=36`)
+- CSS link usa query string `?v=N` (ex: `style.css?v=41`)
 
 #### Scrollbar Customizada
 - WebKit: thumb #00cec9, hover #00e6e0, track #111, 8px
@@ -164,25 +170,45 @@
 #### Login
 - Firebase Auth (email + senha)
 - Auto-logout por inatividade (5 min)
+- **Design moderno**: glassmorphism, gradiente escuro, Poppins font, bordas arredondadas 12px
 
-#### CRUD Eventos
+#### CRUD Eventos (Agenda)
 - Campos: título, dataReal, categoria, cidade + estado, imagem, descrição
 - Data de exibição e local gerados automaticamente
 - Lista separa PRÓXIMOS / ARQUIVADOS
 - Upload de imagem via Cloudinary
+- **Preview da imagem** com botão X (remove + deleta do Cloudinary)
+- **`imagemPublicId` salvo** no Firestore para delete via API
 
 #### CRUD Serviços
 - Campos: nome, categoria, preço, imagem, descrição
 - Preço com formatação BR automática
 - Upload via Cloudinary
+- **Preview da imagem** com botão X (remove + deleta do Cloudinary)
+- **`imagemPublicId` salvo** no Firestore para delete via API
+- **Crop/position control**: arrastável para ajustar `object-position` da imagem no card
+- **Preview modal**: simula o card real do site (320x140) para ajuste visual do crop
+- **`imagemPosition` salvo** no Firestore e aplicado nos cards do site
 
 #### CRUD Galeria
 - Campos: título, data, cidade, estado, capa, fotos (array)
 - Upload de múltiplas imagens via Cloudinary
 - Preview das fotos antes de salvar
+- **Ordenados por data** (mais novo primeiro)
 
 #### Toasts
 - Criar / atualizar / excluir / erro
+
+#### Design do Painel
+- Fundo gradiente escuro com tom verde sutil
+- Login: glassmorphism com backdrop-filter blur
+- Inputs: bordas arredondadas 12px, fundo transparente, glow cyan no focus
+- Botões: gradiente cyan, pill shapes, hover com sombra
+- Lista de eventos: cards glass com bordas sutis, hover com translate suave
+- Abas: estilo pill com container, active com glow
+- Upload: borda dashed moderna
+- Toast: glass + backdrop blur
+- Títulos das listas: centralizados, uppercase, letter-spacing largo, cor #888
 
 ---
 
@@ -199,6 +225,7 @@
   estado: "SP",
   local: "Campinas, SP",
   imagem: "https://...",
+  imagemPublicId: "cloudinary_id",
   descricao: "String"
 }
 ```
@@ -210,6 +237,8 @@
   categoria: "String",
   preco: "2.500",
   imagem: "https://...",
+  imagemPosition: "50% 50%",
+  imagemPublicId: "cloudinary_id",
   descricao: "String\n- Item 1\n- Item 2"
 }
 ```
@@ -245,6 +274,10 @@
 | 8 | Modal galeria com margens laterais no mobile | `.modal-galeria-painel` com `width: 95%` e `.modal-overlay` com `padding: 20px` | Alterou para `width: 100%` e `padding: 0` no overlay em ≤768px |
 | 9 | Botões X e setas escuros se confundiam com fundo preto | `.modal-fechar`, `.zoom-fechar`, `.galeria-nav` com `background: rgba(0,0,0,0.5)` e `color: #fff` | Mudou para sempre cyan: normal `#0a8a86`, hover `#00cec9`, com `color: #111` |
 | 10 | Lightbox navegava em loop (da última voltava pra primeira) | `(index + dir + total) % total` com módulo | Substituído por travamento nos limites + `.galeria-nav-disabled` (opacity: 0, pointer-events: none) |
+| 11 | Cloudinary delete não funcionava (services/agenda) | `vercel.json` com rewrite catch-all `/(.*)` mandava `/api/*` pra `index.html` | Adicionado rewrite `/api/(.*)` com prioridade antes do catch-all |
+| 12 | `imagemPublicId` não era limpo ao remover imagem | `if (publicIdFinal)` condicionava o campo, Firestore mantinha valor antigo | Campo sempre enviado (mesmo vazio) no update |
+| 13 | Galeria modal resetava scroll ao fechar foto | `scrollTop = 0` no `fecharGaleria()` | Removido `scrollTop = 0` — mantém posição do scroll |
+| 14 | X do preview de imagem vazava fora do container no mobile | `position: absolute; top: -6px; right: -6px` sem bounds | Mudado para `top: 4px; right: 4px` (dentro da imagem) |
 
 ## Ajustes de CSS para Notebook (125%/150%)
 
