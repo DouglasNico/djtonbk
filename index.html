@@ -693,8 +693,45 @@
             if (src) abrirZoom(src);
         });
         document.querySelector('.modal-flyer').addEventListener('click', function() { if (this.src) abrirZoom(this.src); });
-        document.querySelector('.zoom-fechar').addEventListener('click', function() { zoomOverlay.classList.remove('ativo'); unlockScroll(); });
-        zoomOverlay.addEventListener('click', function(e) { if (e.target === this) { this.classList.remove('ativo'); unlockScroll(); } });
+        document.querySelector('.zoom-fechar').addEventListener('click', function() { zoomImg.style.transform = 'scale(1)'; zoomOverlay.classList.remove('ativo'); unlockScroll(); });
+        zoomOverlay.addEventListener('click', function(e) { if (e.target === this) { zoomImg.style.transform = 'scale(1)'; this.classList.remove('ativo'); unlockScroll(); } });
+
+        // PINCH-TO-ZOOM NO FLYER DA AGENDA
+        let zoomPinchStartDist = 0, zoomPinchScale = 1, isZoomPinching = false;
+        zoomOverlay.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) {
+                isZoomPinching = true;
+                zoomPinchStartDist = Math.sqrt(
+                    Math.pow(e.touches[0].clientX - e.touches[1].clientX, 2) +
+                    Math.pow(e.touches[0].clientY - e.touches[1].clientY, 2)
+                );
+                zoomPinchScale = parseFloat(zoomImg.style.transform.replace('scale(', '').replace(')', '')) || 1;
+                e.preventDefault();
+            }
+        }, { passive: false });
+        zoomOverlay.addEventListener('touchmove', function(e) {
+            if (isZoomPinching && e.touches.length === 2) {
+                e.preventDefault();
+                const dist = Math.sqrt(
+                    Math.pow(e.touches[0].clientX - e.touches[1].clientX, 2) +
+                    Math.pow(e.touches[0].clientY - e.touches[1].clientY, 2)
+                );
+                const newScale = Math.max(1, Math.min(4, zoomPinchScale * (dist / zoomPinchStartDist)));
+                zoomImg.style.transform = `scale(${newScale})`;
+                zoomImg.style.transition = 'none';
+                zoomImg.style.transformOrigin = 'center center';
+            }
+        }, { passive: false });
+        zoomOverlay.addEventListener('touchend', function(e) {
+            if (isZoomPinching) {
+                isZoomPinching = false;
+                const currentScale = parseFloat(zoomImg.style.transform.replace('scale(', '').replace(')', '')) || 1;
+                if (currentScale < 1.1) {
+                    zoomImg.style.transition = 'transform 0.3s ease';
+                    zoomImg.style.transform = 'scale(1)';
+                }
+            }
+        });
 
         // ==========================================
         // GALERIA DO FIREBASE
